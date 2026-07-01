@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -21,11 +21,9 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        DB::statement("
-            ALTER TABLE transfer_bids
-            ADD CONSTRAINT chk_transfer_bid_different_users
-            CHECK (proposer_id <> receiver_id)
-        ");
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE transfer_bids ADD CONSTRAINT chk_transfer_bid_different_users CHECK (proposer_id <> receiver_id)');
+        }
     }
 
     /**

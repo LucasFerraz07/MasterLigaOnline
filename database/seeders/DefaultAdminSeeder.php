@@ -13,10 +13,9 @@ class DefaultAdminSeeder extends Seeder
         $admin = User::firstOrCreate(
             ['email' => env('ADMIN_EMAIL', 'admin@teste.com')],
             [
-                'name'      => 'System Admin',
-                'password'  => bcrypt(env('ADMIN_PASSWORD', 'password')),
-                'company_id' => null,
-                'ativo'     => true,
+                'name'     => 'System Admin',
+                'password' => bcrypt(env('ADMIN_PASSWORD', 'password')),
+                'phone'    => env('ADMIN_PHONE', '00000000000'),
             ]
         );
 
