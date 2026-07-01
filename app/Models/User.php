@@ -2,19 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\Company;
-use App\Models\Concerns\Tenantable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasFactory, Notifiable, HasRoles, Tenantable;
+    use HasUuids, SoftDeletes, HasRoles;
 
     protected $guard_name = 'api';
 
@@ -22,9 +20,9 @@ class User extends Authenticatable implements JWTSubject
         'name',
         'email',
         'password',
-        'company_id',
-        'ativo',
-        'last_login',
+        'phone',
+        'league_id',
+        'balance',
     ];
 
     protected $hidden = [
@@ -35,8 +33,7 @@ class User extends Authenticatable implements JWTSubject
     {
         return [
             'password' => 'hashed',
-            'ativo'      => 'boolean',
-            'last_login' => 'datetime',
+            'balance'  => 'decimal:2',
         ];
     }
 
@@ -50,13 +47,13 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
-    public function company(): BelongsTo
+    public function league(): BelongsTo
     {
-        return $this->belongsTo(Company::class);
+        return $this->belongsTo(League::class);
     }
 
-    public function vitalabs(): HasMany
+    public function owner(): HasOne
     {
-        return $this->hasMany(Vitalab::class);
+        return $this->hasOne(Owner::class);
     }
 }

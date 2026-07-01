@@ -24,9 +24,9 @@ class TenantScope implements Scope
 
             if (! $auth instanceof User) return;
             if ($auth->hasRole(UserType::SYSTEM_ADMIN->value)) return;
-            if (! $auth->company_id) return;
+            if (! $auth->league_id) return;
 
-            $builder->where($model->getTable().'.company_id', $auth->company_id);
+            $builder->where($model->getTable().'.league_id', $auth->league_id);
         } finally {
             self::$resolving = false;
         }

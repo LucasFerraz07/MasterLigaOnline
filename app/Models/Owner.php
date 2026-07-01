@@ -3,28 +3,29 @@
 namespace App\Models;
 
 use App\Models\Concerns\Tenantable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Owner extends Model
 {
-    use Tenantable;
+    use HasUuids, SoftDeletes, Tenantable;
 
     protected $fillable = [
+        'full_name',
         'cpf',
-        'company_id',
+        'league_id',
         'user_id',
     ];
 
+    public function league(): BelongsTo
+    {
+        return $this->belongsTo(League::class);
+    }
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function companies(): BelongsToMany
-    {
-        return $this->belongsToMany(Company::class, 'owner_has_companies');
     }
 }
