@@ -16,6 +16,8 @@ class User extends Authenticatable implements JWTSubject
 
     protected $guard_name = 'api';
 
+    protected $appends = ['is_active'];
+
     protected $fillable = [
         'name',
         'email',
@@ -28,6 +30,7 @@ class User extends Authenticatable implements JWTSubject
     protected $hidden = [
         'password',
     ];
+
 
     protected function casts(): array
     {
@@ -45,6 +48,11 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims(): array
     {
         return [];
+    }
+
+    public function getIsActiveAttribute(): bool
+    {
+        return is_null($this->deleted_at);
     }
 
     public function league(): BelongsTo

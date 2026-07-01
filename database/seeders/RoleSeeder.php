@@ -14,19 +14,11 @@ class RoleSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions = [
-            'company.create',
-            'company.view',
-            'company.show',
-            'company.update',
-            'company.delete',
-            'vitalab.create',
-            'vitalab.view',
-            'vitalab.update',
-            'vitalab.delete',
-            'measurement.create',
-            'measurement.view',
-            'measurement.update',
-            'measurement.delete',
+            'league.view',
+            'league.show',
+            'league.create',
+            'league.update',
+            'league.delete',
         ];
 
         foreach ($permissions as $permission) {
@@ -40,15 +32,7 @@ class RoleSeeder extends Seeder
         $systemAdmin->syncPermissions(Permission::where('guard_name', 'api')->get());
 
         $tenantAdmin->syncPermissions([
-            'company.show',
-            'vitalab.create',
-            'vitalab.view',
-            'vitalab.update',
-            'vitalab.delete',
-            'measurement.create',
-            'measurement.view',
-            'measurement.update',
-            'measurement.delete',
+            'league.show',
         ]);
     }
 }

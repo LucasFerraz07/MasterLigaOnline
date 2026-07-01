@@ -14,15 +14,18 @@ class AuthService
 {
     public function login(array $data): array
     {
-        $user = User::query()->where('email', $data['email'])->first();
+        $user = User::withTrashed()->where('email', $data['email'])->first();
+
+        if ($user && ! $user->is_active) {
+            throw new ApiException('Usuário inativo', 403);
+        }
 
         if (Auth::attempt(['email' => $data['email'], 'password' => $data['password']])) {
             $user = Auth::user();
             $refreshTtlInSeconds = Config::get('jwt.refresh_ttl') * 60;
             $token = JWTAuth::fromUser($user);
 
-            $user->load(['roles.permissions', 'roles', 'company']);
-            $user->update(['last_login' => now()]);
+            $user->load(['roles.permissions', 'roles', 'league', 'owner']);
 
             return [
                 'user'               => new UserResource($user),
@@ -35,13 +38,13 @@ class AuthService
             $refreshTtlInSeconds = Config::get('jwt.refresh_ttl') * 60;
             $token = JWTAuth::fromUser($user);
 
-            $user->load(['roles.permissions', 'roles', 'company']);
+            $user->load(['roles.permissions', 'roles', 'league', 'owner']);
 
             return [
                 'user'               => new UserResource($user),
                 'token'              => $token,
                 'refresh_expires_in' => $refreshTtlInSeconds,
-                'company'            => $this->resolveCompanyFromTenant($user),
+                'league'             => $this->resolveLeagueFromUser($user),
             ];
         }
 
@@ -51,7 +54,7 @@ class AuthService
     public function me(): UserResource
     {
         $user = Auth::user();
-        $user->load(['roles.permissions', 'company']);
+        $user->load(['roles.permissions', 'league', 'owner']);
         return new UserResource($user);
     }
 
@@ -71,18 +74,17 @@ class AuthService
         Auth::logout();
     }
 
-    private function resolveCompanyFromTenant(User $user): ?array
+    private function resolveLeagueFromUser(User $user): ?array
     {
-        if (! $user->company_id || ! $user->company) {
+        if (! $user->league_id || ! $user->league) {
             return null;
         }
 
         return [
-            'id'         => $user->company->id,
-            'nome'       => $user->company->nome,
-            'ativo'      => $user->company->ativo,
-            'created_at' => $user->company->created_at,
-            'updated_at' => $user->company->updated_at,
+            'id'         => $user->league->id,
+            'name'       => $user->league->name,
+            'created_at' => $user->league->created_at,
+            'updated_at' => $user->league->updated_at,
         ];
     }
 }
