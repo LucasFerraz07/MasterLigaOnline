@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('vitalabs', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('company_id')
-                ->constrained()
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
-            $table->string('esp_code')->unique();
-            $table->timestamp('last_sync')->nullable();
+        Schema::create('transaction_types', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('name', 50)->unique();
+            $table->string('name_label', 100)->unique();
+            $table->enum('operation', ['credit', 'debit']);
+            $table->softDeletes();
             $table->timestamps();
         });
     }
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('vitalabs');
+        Schema::dropIfExists('transaction_types');
     }
 };

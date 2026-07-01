@@ -8,16 +8,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('companies', function (Blueprint $table) {
-            $table->id();
-            $table->string('nome');
-            $table->boolean('ativo')->default(true);
+        Schema::create('subscriptions', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('name');
+            $table->unsignedTinyInteger('user_limit')->nullable();
+            $table->decimal('price', 10, 2);
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('companies');
+        Schema::dropIfExists('subscriptions');
     }
 };
