@@ -14,8 +14,11 @@ class RoleSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions = [
+            'subscription.view',
+            'subscription.create',
+            'subscription.update',
+            'subscription.delete',
             'league.view',
-            'league.show',
             'league.create',
             'league.update',
             'league.delete',
@@ -27,12 +30,17 @@ class RoleSeeder extends Seeder
 
         $systemAdmin = Role::firstOrCreate(['name' => UserType::SYSTEM_ADMIN->value, 'guard_name' => 'api']);
         $tenantAdmin = Role::firstOrCreate(['name' => UserType::TENANT_ADMIN->value, 'guard_name' => 'api']);
+        $user = Role::firstOrCreate(['name' => UserType::USER->value, 'guard_name' => 'api']);
         Role::firstOrCreate(['name' => UserType::USER->value, 'guard_name' => 'api']);
 
         $systemAdmin->syncPermissions(Permission::where('guard_name', 'api')->get());
 
         $tenantAdmin->syncPermissions([
-            'league.show',
+            'league.view',
+        ]);
+
+        $user->syncPermissions([
+            'league.view',
         ]);
     }
 }
