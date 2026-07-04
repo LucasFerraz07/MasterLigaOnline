@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @mixin IdeHelperLeague
+ */
 class League extends Model
 {
     use HasUuids, SoftDeletes;

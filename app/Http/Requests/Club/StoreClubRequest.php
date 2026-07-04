@@ -26,7 +26,7 @@ class StoreClubRequest extends FormRequest
     {
         return [
             'name'   => ['required', 'string', 'max:100', 'unique:clubs,name'],
-            'crest'  => ['nullable', 'string', 'max:255'],
+            'crest'  => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'region' => ['required', Rule::enum(ClubRegion::class)],
         ];
     }

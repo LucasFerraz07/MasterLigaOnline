@@ -6,6 +6,9 @@ use App\Enums\ClubRegion;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @mixin IdeHelperClub
+ */
 class Club extends Model
 {
     use HasUuids;

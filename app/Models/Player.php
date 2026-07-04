@@ -6,6 +6,9 @@ use App\Enums\Category;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @mixin IdeHelperPlayer
+ */
 class Player extends Model
 {
     use HasUuids;

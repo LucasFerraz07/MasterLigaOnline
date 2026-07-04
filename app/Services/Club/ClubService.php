@@ -3,7 +3,9 @@
 namespace App\Services\Club;
 
 use App\Http\Resources\Club\ClubCollection;
+use App\Http\Resources\Club\ClubResource;
 use App\Models\Club;
+use Illuminate\Support\Facades\Storage;
 
 class ClubService
 {
@@ -21,5 +23,16 @@ class ClubService
         $paginator = $query->paginate($perPage, ['*'], 'page', $page);
 
         return new ClubCollection($paginator);
+    }
+
+    public function store(array $data): ClubResource
+    {
+        if (! empty($data['crest'])) {
+            $data['crest'] = $data['crest']->store('images/clubs', 'public');
+        }
+
+        $club = Club::create($data);
+
+        return new ClubResource($club);
     }
 }

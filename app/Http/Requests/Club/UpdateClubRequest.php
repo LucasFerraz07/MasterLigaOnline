@@ -26,9 +26,9 @@ class UpdateClubRequest extends FormRequest
     {
         return [
             'id'     => ['required', 'uuid', 'exists:clubs,id'],
-            'name'   => ['sometimes', 'required', 'string', 'max:100', 'unique:clubs,name,' . $this->route('id') . ',id'],
-            'crest'  => ['sometimes', 'nullable', 'string', 'max:255'],
-            'region' => ['sometimes', 'required', Rule::enum(ClubRegion::class)],
+            'name'   => ['nullable', 'string', 'max:100', 'unique:clubs,name,' . $this->route('id') . ',id'],
+            'crest'  => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'region' => ['nullable',  Rule::enum(ClubRegion::class)],
         ];
     }
 

@@ -10,6 +10,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
+/**
+ * @mixin IdeHelperUser
+ */
 class User extends Authenticatable implements JWTSubject
 {
     use HasUuids, SoftDeletes, HasRoles;
