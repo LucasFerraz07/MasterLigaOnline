@@ -12,7 +12,7 @@ class IndexClubRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +23,9 @@ class IndexClubRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'search'   => ['nullable', 'string', 'max:255'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'page'     => ['nullable', 'integer', 'min:1'],
         ];
     }
 }
