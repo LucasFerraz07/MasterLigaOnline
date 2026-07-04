@@ -23,9 +23,9 @@ class IndexSubscriptionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'search'   => ['sometimes', 'nullable', 'string', 'max:255'],
-            'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
-            'page'     => ['sometimes', 'integer', 'min:1'],
+            'search'   => ['nullable', 'nullable', 'string', 'max:255'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'page'     => ['nullable', 'integer', 'min:1'],
         ];
     }
 }

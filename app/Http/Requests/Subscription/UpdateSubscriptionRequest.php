@@ -15,21 +15,6 @@ class UpdateSubscriptionRequest extends FormRequest
         return true;
     }
 
-    /**
-     * Merge the route parameter into the data to be validated.
-     */
-    protected function prepareForValidation(): void
-    {
-        $this->merge([
-            'id' => $this->route('id'),
-        ]);
-    }
-
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
@@ -40,11 +25,6 @@ class UpdateSubscriptionRequest extends FormRequest
         ];
     }
 
-    /**
-     * Get custom attributes for validator errors.
-     *
-     * @return array<string, string>
-     */
     public function attributes(): array
     {
         return [
@@ -52,5 +32,15 @@ class UpdateSubscriptionRequest extends FormRequest
             'user_limit' => 'limite de usuários',
             'price'      => 'preço',
         ];
+    }
+
+    /**
+     * Merge the route parameter into the data to be validated.
+     */
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'id' => $this->route('id'),
+        ]);
     }
 }

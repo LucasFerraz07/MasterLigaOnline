@@ -8,6 +8,7 @@ use App\Exceptions\ApiException;
 use App\Http\Requests\Subscription\DeleteSubscriptionRequest;
 use App\Http\Requests\Subscription\IndexSubscriptionRequest;
 use App\Http\Requests\Subscription\StoreSubscriptionRequest;
+use App\Http\Requests\Subscription\UpdateSubscriptionRequest;
 use App\Services\Subscription\SubscriptionService;
 use Illuminate\Http\JsonResponse;
 
@@ -32,6 +33,16 @@ class Subscription extends Controller
         try {
             $data = $this->service->store($request->validated());
             return ReturnApi::success($data, 'Assinatura criada com sucesso.');
+        } catch (ApiException $e) {
+            return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
+        }
+    }
+
+    public function update(UpdateSubscriptionRequest $request): JsonResponse
+    {
+        try{
+            $data = $this->service->update($request->validated());
+            return ReturnApi::success($data, 'Assinatura atualizada com sucesso.');
         } catch (ApiException $e) {
             return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
         }

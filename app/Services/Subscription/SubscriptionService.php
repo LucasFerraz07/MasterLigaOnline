@@ -35,6 +35,19 @@ class SubscriptionService
         });
     }
 
+    public function update(array $data): SubscriptionResource
+    {
+        return DB::transaction(function () use ($data): SubscriptionResource {
+            $subscription = Subscription::findOrFail($data['id']);
+            $subscription->update([
+                'name'  => $data['name'] ?? $subscription->name,
+                'user_limit' => $data['user_limit'] ?? $subscription->user_limit,
+                'price'      => $data['price'] ?? $subscription->price,
+            ]);
+            return new SubscriptionResource($subscription);
+        });
+    }
+
     public function destroy(array $data): void
     {
         $subscription = Subscription::findOrFail($data['id']);
