@@ -35,4 +35,32 @@ class ClubService
 
         return new ClubResource($club);
     }
+
+    public function update(array $data): ClubResource
+    {
+        $club = Club::findOrFail($data['id']);
+
+        if (! empty($data['crest'])) {
+            if ($club->crest !== null) {
+                Storage::disk('public')->delete($club->crest);
+            }
+
+            $data['crest'] = $data['crest']->store('images/clubs', 'public');
+        }
+
+        $club->update($data);
+
+        return new ClubResource($club);
+    }
+
+    public function destroy(int $id): void
+    {
+        $club = Club::findOrFail($id);
+
+        if ($club->crest !== null) {
+            Storage::disk('public')->delete($club->crest);
+        }
+
+        $club->delete();
+    }
 }
