@@ -26,9 +26,9 @@ class UpdateTransactionTypeRequest extends FormRequest
     {
         return [
             'id'          => ['required', 'uuid', 'exists:transaction_types,id'],
-            'name'        => ['nullable', 'string', 'max:50', 'unique:transaction_types,name,' . $this->route('id') . ',id'],
+            'name'        => ['required', 'string', 'max:50', 'unique:transaction_types,name,' . $this->route('id') . ',id'],
             'description' => ['nullable', 'string', 'max:100', 'unique:transaction_types,description,' . $this->route('id') . ',id'],
-            'operation'   => ['nullable', Rule::enum(TransactionOperation::class)],
+            'operation'   => ['required', Rule::enum(TransactionOperation::class)],
         ];
     }
 
