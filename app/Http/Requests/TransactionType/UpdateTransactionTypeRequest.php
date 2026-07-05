@@ -25,10 +25,10 @@ class UpdateTransactionTypeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id'         => ['required', 'uuid', 'exists:transaction_types,id'],
-            'name'       => ['nullable', 'string', 'max:50', 'unique:transaction_types,name,' . $this->route('id') . ',id'],
-            'name_label' => ['nullable', 'string', 'max:100', 'unique:transaction_types,name_label,' . $this->route('id') . ',id'],
-            'operation'  => ['nullable', Rule::enum(TransactionOperation::class)],
+            'id'          => ['required', 'uuid', 'exists:transaction_types,id'],
+            'name'        => ['nullable', 'string', 'max:50', 'unique:transaction_types,name,' . $this->route('id') . ',id'],
+            'description' => ['nullable', 'string', 'max:100', 'unique:transaction_types,description,' . $this->route('id') . ',id'],
+            'operation'   => ['nullable', Rule::enum(TransactionOperation::class)],
         ];
     }
 
@@ -40,9 +40,9 @@ class UpdateTransactionTypeRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'name'       => 'nome',
-            'name_label' => 'rótulo',
-            'operation'  => 'operação',
+            'name'        => 'nome',
+            'description' => 'descrição',
+            'operation'   => 'operação',
         ];
     }
 

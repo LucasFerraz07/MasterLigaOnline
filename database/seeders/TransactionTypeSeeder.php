@@ -16,32 +16,32 @@ class TransactionTypeSeeder extends Seeder
         DB::table('transaction_types')->insert([
             [
                 'name' => 'free_purchase',
-                'name_label' => 'Compra gratuita',
+                'description' => 'Compra gratuita',
                 'operation' => 'debit',
             ],
             [
                 'name' => 'negotiation_purchase',
-                'name_label' => 'Compra por negociação',
+                'description' => 'Compra por negociação',
                 'operation' => 'debit'
             ],
             [
                 'name' => 'mulct_purchase',
-                'name_label' => 'Compra por arremate',
+                'description' => 'Compra por arremate',
                 'operation' => 'debit'
             ],
             [
                 'name' => 'negotiation_sale',
-                'name_label' => 'Venda por negociação',
+                'description' => 'Venda por negociação',
                 'operation' => 'credit'
             ],
             [
                 'name' => 'mulct_sale',
-                'name_label' => 'Venda por arremate',
+                'description' => 'Venda por arremate',
                 'operation' => 'credit'
             ],
             [
                 'name' => 'initial_credit',
-                'name_label' => 'Crédito inicial',
+                'description' => 'Crédito inicial',
                 'operation' => 'credit'
             ],
         ]);

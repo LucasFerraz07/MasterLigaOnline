@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('transaction_types', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name', 50)->unique();
-            $table->string('name_label', 100)->unique();
+            $table->string('description', 100)->nullable();
             $table->enum('operation', ['credit', 'debit']);
             $table->softDeletes();
             $table->timestamps();

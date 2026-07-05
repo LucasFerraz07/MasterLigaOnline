@@ -25,9 +25,9 @@ class StoreTransactionTypeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'       => ['required', 'string', 'max:50', 'unique:transaction_types,name'],
-            'name_label' => ['required', 'string', 'max:100', 'unique:transaction_types,name_label'],
-            'operation'  => ['required', Rule::enum(TransactionOperation::class)],
+            'name'        => ['required', 'string', 'max:50', 'unique:transaction_types,name'],
+            'description' => ['nullable', 'string', 'max:100', 'unique:transaction_types,description'],
+            'operation'   => ['required', Rule::enum(TransactionOperation::class)],
         ];
     }
 
@@ -39,9 +39,9 @@ class StoreTransactionTypeRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'name'       => 'nome',
-            'name_label' => 'rótulo',
-            'operation'  => 'operação',
+            'name'        => 'nome',
+            'description' => 'descrição',
+            'operation'   => 'operação',
         ];
     }
 }
