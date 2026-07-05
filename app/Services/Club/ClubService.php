@@ -53,9 +53,9 @@ class ClubService
         return new ClubResource($club);
     }
 
-    public function destroy(int $id): void
+    public function destroy(array $data): void
     {
-        $club = Club::findOrFail($id);
+        $club = Club::findOrFail($data['id']);
 
         if ($club->crest !== null) {
             Storage::disk('public')->delete($club->crest);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Club;
 use App\Builder\ReturnApi;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Club\DeleteClubRequest;
 use App\Http\Requests\Club\IndexClubRequest;
 use App\Http\Requests\Club\StoreClubRequest;
 use App\Http\Requests\Club\UpdateClubRequest;
@@ -47,10 +48,10 @@ class Club extends Controller
         }
     }
 
-    public function destroy(int $id): JsonResponse
+    public function destroy(DeleteClubRequest $request): JsonResponse
     {
         try {
-            $this->service->destroy($id);
+            $this->service->destroy($request->validated());
             return ReturnApi::success(null, 'Clube deletado com sucesso.');
         } catch (ApiException $e) {
             return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
