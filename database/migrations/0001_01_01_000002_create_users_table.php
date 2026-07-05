@@ -10,12 +10,13 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('name');
+            $table->string('username');
             $table->string('email')->unique();
             $table->string('password');
             $table->string('phone', 15);
             $table->foreignUuid('league_id')->nullable()->constrained('leagues')->nullOnDelete();
             $table->decimal('balance', 12, 2)->default(0);
+            $table->string('user_type');
             $table->softDeletes();
             $table->timestamps();
         });

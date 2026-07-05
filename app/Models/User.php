@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UserType;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -22,12 +23,13 @@ class User extends Authenticatable implements JWTSubject
     protected $appends = ['is_active'];
 
     protected $fillable = [
-        'name',
+        'username',
         'email',
         'password',
         'phone',
         'league_id',
         'balance',
+        'user_type',
     ];
 
     protected $hidden = [
@@ -40,6 +42,7 @@ class User extends Authenticatable implements JWTSubject
         return [
             'password' => 'hashed',
             'balance'  => 'decimal:2',
+            'user_type' => UserType::class,
         ];
     }
 

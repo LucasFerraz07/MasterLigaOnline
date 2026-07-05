@@ -17,6 +17,10 @@ class SubscriptionService
         $page    = (int) ($data['page']     ?? 1);
 
         $query = Subscription::query()->orderByDesc('created_at');
+        
+        if (! empty($data['search'])) {
+            $query->where('name', 'ilike', '%' . $data['search'] . '%');
+        }
 
         $paginator = $query->paginate($perPage, ['*'], 'page', $page);
 

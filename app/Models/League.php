@@ -27,6 +27,10 @@ class League extends Model
         'subscription_end',
     ];
 
+    protected $appends = [
+        'is_active',
+    ];
+
     protected function casts(): array
     {
         return [
@@ -38,6 +42,11 @@ class League extends Model
             'mulct_contract_limit' => 'integer',
             'player_limit'        => 'integer',
         ];
+    }
+
+    public function getIsActiveAttribute(): bool
+    {
+        return $this->deleted_at === null && $this->subscription_end->isFuture();
     }
 
     public function subscription(): BelongsTo

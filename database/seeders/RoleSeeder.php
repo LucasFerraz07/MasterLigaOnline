@@ -37,13 +37,13 @@ class RoleSeeder extends Seeder
         }
 
         $systemAdmin = Role::firstOrCreate(['name' => UserType::SYSTEM_ADMIN->value, 'guard_name' => 'api']);
-        $tenantAdmin = Role::firstOrCreate(['name' => UserType::TENANT_ADMIN->value, 'guard_name' => 'api']);
+        $leagueAdmin = Role::firstOrCreate(['name' => UserType::LEAGUE_ADMIN->value, 'guard_name' => 'api']);
         $user = Role::firstOrCreate(['name' => UserType::USER->value, 'guard_name' => 'api']);
         Role::firstOrCreate(['name' => UserType::USER->value, 'guard_name' => 'api']);
 
         $systemAdmin->syncPermissions(Permission::where('guard_name', 'api')->get());
 
-        $tenantAdmin->syncPermissions([
+        $leagueAdmin->syncPermissions([
             'league.view',
         ]);
 

@@ -17,7 +17,7 @@ class ClubService
         $query = Club::query()->orderByDesc('created_at');
 
         if (! empty($data['search'])) {
-            $query->where('name', 'like', '%' . $data['search'] . '%');
+            $query->where('name', 'ilike', '%' . $data['search'] . '%');
         }
 
         $paginator = $query->paginate($perPage, ['*'], 'page', $page);
