@@ -10,16 +10,17 @@ class LeagueService
 {
     public function index(array $data): LeagueCollection
     {
-        $perPage = (int) ($data['per_page'] ?? 10);
-        $page    = (int) ($data['page']     ?? 1);
+        $page = $data['page'] ?? 1;
+        $perPage = $data['per_page'] ?? 10;
+        $search = $data['search'] ?? null;
+        $trashed = $data['with_trashed'] ?? null;
 
         $query = League::query()
-            ->orderByDesc('created_at')
-            ->when($data['with_trashed'] ?? false, fn ($q) => $q->withTrashed());
-
-        if (! empty($data['search'])) {
-            $query->where('name', 'ilike', '%' . $data['search'] . '%');
-        }
+            ->when($trashed, fn ($query) => $query->withTrashed())
+            ->when($search, function ($query) use ($search): void {
+                $query->where('name', 'ILIKE', "%{$search}%");
+            })
+            ->orderByDesc('created_at');
 
         $paginator = $query->paginate($perPage, ['*'], 'page', $page);
 
