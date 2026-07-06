@@ -14,6 +14,20 @@ class LeagueResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id'                    => $this->id,
+            'name'                  => $this->name,
+            'silver_limit'          => $this->silver_limit,
+            'golden_limit'          => $this->golden_limit,
+            'black_limit'           => $this->black_limit,
+            'mulct_contract_limit'  => $this->mulct_contract_limit,
+            'player_limit'          => $this->player_limit,
+            'subscription_id'       => $this->subscription_id,
+            'subscription_start'    => $this->subscription_start,
+            'subscription_end'      => $this->subscription_end,
+            'is_active'             => $this->is_active,
+            'created_at'            => $this->created_at,
+            'updated_at'            => $this->updated_at,
+        ];
     }
 }

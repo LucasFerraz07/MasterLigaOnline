@@ -4,6 +4,7 @@ namespace App\Services\League;
 
 use App\Exceptions\ApiException;
 use App\Http\Resources\League\LeagueCollection;
+use App\Http\Resources\League\LeagueResource;
 use App\Models\League;
 
 class LeagueService
@@ -25,5 +26,12 @@ class LeagueService
         $paginator = $query->paginate($perPage, ['*'], 'page', $page);
 
         return new LeagueCollection($paginator);
+    }
+
+    public function show(array $data): LeagueResource
+    {
+        $league = League::findOrFail($data['id']);
+
+        return new LeagueResource($league);
     }
 }

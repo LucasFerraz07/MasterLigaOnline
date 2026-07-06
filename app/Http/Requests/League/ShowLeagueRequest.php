@@ -12,7 +12,17 @@ class ShowLeagueRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
+    }
+
+    /**
+     * Merge the route parameter into the data to be validated.
+     */
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'id' => $this->route('id'),
+        ]);
     }
 
     /**
@@ -23,7 +33,7 @@ class ShowLeagueRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'id' => ['required', 'uuid', 'exists:leagues,id'],
         ];
     }
 }
