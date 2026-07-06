@@ -16,6 +16,7 @@ class DefaultAdminSeeder extends Seeder
                 'username'     => 'System Admin',
                 'password' => bcrypt(env('ADMIN_PASSWORD', 'password')),
                 'phone'    => env('ADMIN_PHONE', '00000000000'),
+                'user_type' => UserType::SYSTEM_ADMIN,
             ]
         );
 

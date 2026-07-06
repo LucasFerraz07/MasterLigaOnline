@@ -5,7 +5,7 @@ namespace App\Http\Requests\League;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateLeagueRequest extends FormRequest
+class RenewSubscriptionLeagueRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,16 +13,6 @@ class UpdateLeagueRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
-    }
-
-    /**
-     * Merge the route parameter into the data to be validated.
-     */
-    protected function prepareForValidation(): void
-    {
-        $this->merge([
-            'id' => $this->route('id'),
-        ]);
     }
 
     /**
@@ -34,19 +24,24 @@ class UpdateLeagueRequest extends FormRequest
     {
         return [
             'id' => ['required', 'uuid', 'exists:leagues,id'],
-            'name' => ['nullable', 'string', 'max:255'],
+            'subscription_id' => ['nullable', 'exists:subscriptions,id'],
+            'subscription_duration' => ['required', 'integer', 'min:1'],
         ];
     }
 
-    /**
-     * Get custom attributes for validator errors.
-     *
-     * @return array<string, string>
-     */
     public function attributes(): array
     {
         return [
-            'name' => 'nome da liga',
+            'id' => 'ID da liga',
+            'subscription_id' => 'ID da assinatura',
+            'subscription_duration' => 'duração da assinatura (meses)',
         ];
+    }
+
+    public function prepareForValidation(): void
+    {
+        $this->merge([
+            'id' => $this->route('id'),
+        ]);
     }
 }

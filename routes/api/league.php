@@ -10,6 +10,7 @@ Route::middleware('auth.api', 'permission:league.view')->group(function () {
 
 Route::middleware('auth.api', 'permission:league.create')->group(function () {
     Route::post('/', [League::class, 'store']);
+    Route::put('/renew-subscription/{id}', [League::class, 'renew']);
 });
 
 Route::middleware('auth.api', 'permission:league.update')->group(function () {

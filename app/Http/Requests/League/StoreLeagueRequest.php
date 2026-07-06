@@ -24,8 +24,8 @@ class StoreLeagueRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'subscription_id' => ['nullable', 'exists:subscriptions,id'],
-            'subscription_end' => ['nullable', 'date'],
+            'subscription_id' => ['required', 'exists:subscriptions,id'],
+            'subscription_duration' => ['required', 'integer', 'min:1'],
             'owner' => ['required', 'array'],
             'owner.username' => ['required', 'string', 'max:255', 'unique:users,username'],
             'owner.email' => ['required', 'email', 'max:255', 'unique:users,email'],
@@ -33,6 +33,22 @@ class StoreLeagueRequest extends FormRequest
             'owner.phone' => ['required', 'string', 'max:15'],
             'owner.full_name' => ['required', 'string', 'max:255'],
             'owner.cpf' => ['required', 'string', 'max:14'],
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'name' => 'nome da liga',
+            'subscription_id' => 'ID da assinatura',
+            'subscription_duration' => 'duração da assinatura (meses)',
+            'owner' => 'dados do proprietário',
+            'owner.username' => 'username do proprietário',
+            'owner.email' => 'email do proprietário',
+            'owner.password' => 'senha do proprietário',
+            'owner.phone' => 'telefone do proprietário',
+            'owner.full_name' => 'nome completo do proprietário',
+            'owner.cpf' => 'CPF do proprietário',
         ];
     }
 }

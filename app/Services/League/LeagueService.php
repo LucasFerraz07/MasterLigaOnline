@@ -2,10 +2,14 @@
 
 namespace App\Services\League;
 
+use App\Enums\UserType;
 use App\Exceptions\ApiException;
 use App\Http\Resources\League\LeagueCollection;
 use App\Http\Resources\League\LeagueResource;
 use App\Models\League;
+use App\Models\Owner;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class LeagueService
 {
@@ -33,5 +37,75 @@ class LeagueService
         $league = League::findOrFail($data['id']);
 
         return new LeagueResource($league);
+    }
+
+    public function store(array $data): LeagueResource
+    {
+        return DB::transaction(function () use ($data): LeagueResource {
+
+            $subscriptionEnd = $data['subscription_duration'] ? now()->addMonths($data['subscription_duration']) : null;
+            $league = League::create([
+                'name' => $data['name'],
+                'subscription_id' => $data['subscription_id'] ?? null,
+                'subscription_start' => now(),
+                'subscription_end' => $subscriptionEnd,
+            ]);
+
+            $user = User::create([
+                'username'  => $data['owner']['username'],
+                'email'     => $data['owner']['email'],
+                'password'  => $data['owner']['password'],
+                'phone'     => $data['owner']['phone'],
+                'league_id' => $league->id,
+                'user_type' => UserType::LEAGUE_ADMIN,
+            ]);
+
+            $user->assignRole(UserType::LEAGUE_ADMIN->value);
+
+            Owner::create([
+                'full_name' => $data['owner']['full_name'],
+                'cpf'       => $data['owner']['cpf'],
+                'league_id' => $league->id,
+                'user_id'   => $user->id,
+            ]);
+
+            return new LeagueResource($league);
+        });
+    }
+
+    public function update(array $data): LeagueResource
+    {
+        return DB::transaction(function () use ($data): LeagueResource {
+            $league = League::findOrFail($data['id']);
+
+            $league->update([
+                'name' => $data['name'] ?? $league->name
+            ]);
+
+            return new LeagueResource($league);
+        });
+    }
+
+    public function destroy(array $data): void
+    {
+        $league = League::findOrFail($data['id']);
+
+        $league->delete();
+    }
+
+    public function renewSubscription(array $data): LeagueResource
+    {
+        return DB::transaction(function () use ($data): LeagueResource {
+            $league = League::findOrFail($data['id']);
+            $renewData = [
+                'subscription_id' => $data['subscription_id'] ?? $league->subscription_id,
+                'subscription_start' => now(),
+                'subscription_duration' => $data['subscription_duration'],
+            ];
+
+            $league->update($renewData);
+
+            return new LeagueResource($league);
+        });
     }
 }
