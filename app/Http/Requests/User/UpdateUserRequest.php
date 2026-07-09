@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\User;
 
-use App\Enums\UserType;
+use App\Enums\UserRole;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -40,7 +40,7 @@ class UpdateUserRequest extends FormRequest
             'email'     => ['nullable', 'email', 'max:255', 'unique:users,email,' . $this->route('id') . ',id'],
             'password'  => ['nullable', 'string', 'min:8'],
             'phone'     => ['nullable', 'string', 'max:15'],
-            'user_type' => ['nullable', Rule::enum(UserType::class)],
+            'role'      => ['nullable', Rule::enum(UserRole::class)],
         ];
     }
 
@@ -56,8 +56,7 @@ class UpdateUserRequest extends FormRequest
             'email'     => 'email',
             'password'  => 'senha',
             'phone'     => 'telefone',
-            'league_id' => 'ID da liga',
-            'user_type' => 'tipo de usuário',
+            'role'      => 'cargo',
         ];
     }
 }

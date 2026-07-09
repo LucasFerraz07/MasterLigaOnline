@@ -2,11 +2,12 @@
 
 namespace App\Services\User;
 
+use App\Enums\UserType;
 use App\Http\Resources\User\UserCollection;
 use App\Http\Resources\User\UserResource;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class UserService
 {
@@ -18,6 +19,7 @@ class UserService
         $trashed = $data['with_trashed'] ?? null;
 
         $query = User::query()
+            ->with('roles')
             ->when($trashed, fn ($query) => $query->withTrashed())
             ->when($search, function ($query) use ($search): void {
                 $query->where('username', 'ILIKE', "%{$search}%");
@@ -31,7 +33,7 @@ class UserService
 
     public function show(array $data): UserResource
     {
-        $user = User::findOrFail($data['id']);
+        $user = User::with('roles')->findOrFail($data['id']);
 
         return new UserResource($user);
     }
@@ -40,16 +42,20 @@ class UserService
     {
         return DB::transaction(function () use ($data): UserResource {
             $actor = Auth::user();
-            $leagueId = $actor->user_type === "system_admin" ? $data['league_id'] : $actor->league_id;
+            $leagueId = $actor->user_type === UserType::SYSTEM_ADMIN
+                ? $data['league_id']
+                : $actor->league_id;
+
             $user = User::create([
                 'username'  => $data['username'],
                 'email'     => $data['email'],
                 'password'  => $data['password'],
                 'phone'     => $data['phone'],
                 'league_id' => $leagueId,
+                'user_type' => UserType::USER,
             ]);
 
-            $user->assignRole();
+            $user->assignRole($data['role']);
 
             return new UserResource($user);
         });
@@ -61,15 +67,14 @@ class UserService
             $user = User::findOrFail($data['id']);
 
             $user->update([
-                'username'  => $data['username'] ?? $user->username,
-                'email'     => $data['email'] ?? $user->email,
-                'password'  => $data['password'] ?? $user->password,
-                'phone'     => $data['phone'] ?? $user->phone,
-                'user_type' => $data['user_type'] ?? $user->user_type,
+                'username' => $data['username'] ?? $user->username,
+                'email'    => $data['email'] ?? $user->email,
+                'password' => $data['password'] ?? $user->password,
+                'phone'    => $data['phone'] ?? $user->phone,
             ]);
 
-            if (! empty($data['user_type'])) {
-                $user->syncRoles([$data['user_type']]);
+            if (! empty($data['role'])) {
+                $user->syncRoles([$data['role']]);
             }
 
             return new UserResource($user);

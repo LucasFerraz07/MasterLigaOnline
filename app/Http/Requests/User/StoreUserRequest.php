@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\User;
 
-use App\Enums\UserType;
+use App\Enums\UserRole;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -30,7 +30,7 @@ class StoreUserRequest extends FormRequest
             'password'  => ['required', 'string', 'min:8'],
             'phone'     => ['required', 'string', 'max:15'],
             'league_id' => ['nullable', 'uuid', 'exists:leagues,id'],
-            'user_type' => ['required', Rule::enum(UserType::class)],
+            'role'      => ['required', Rule::enum(UserRole::class)],
         ];
     }
 
@@ -47,7 +47,7 @@ class StoreUserRequest extends FormRequest
             'password'  => 'senha',
             'phone'     => 'telefone',
             'league_id' => 'ID da liga',
-            'user_type' => 'tipo de usuário',
+            'role'      => 'cargo',
         ];
     }
 }

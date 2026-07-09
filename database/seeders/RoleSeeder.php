@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRole;
 use App\Enums\UserType;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
@@ -30,16 +31,23 @@ class RoleSeeder extends Seeder
             'league.create',
             'league.update',
             'league.delete',
+            'user.view',
+            'user.create',
+            'user.update',
+            'user.delete',
         ];
 
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'api']);
         }
 
+        // system_admin e league_admin: role 1:1 com o user_type (sem variação de cargo).
         $systemAdmin = Role::firstOrCreate(['name' => UserType::SYSTEM_ADMIN->value, 'guard_name' => 'api']);
         $leagueAdmin = Role::firstOrCreate(['name' => UserType::LEAGUE_ADMIN->value, 'guard_name' => 'api']);
-        $user = Role::firstOrCreate(['name' => UserType::USER->value, 'guard_name' => 'api']);
-        Role::firstOrCreate(['name' => UserType::USER->value, 'guard_name' => 'api']);
+
+        // user_type "user": cargos com permissões distintas dentro do mesmo tipo.
+        $coOwner = Role::firstOrCreate(['name' => UserRole::CO_OWNER->value, 'guard_name' => 'api']);
+        $default = Role::firstOrCreate(['name' => UserRole::DEFAULT->value, 'guard_name' => 'api']);
 
         $systemAdmin->syncPermissions(Permission::where('guard_name', 'api')->get());
 
@@ -47,7 +55,11 @@ class RoleSeeder extends Seeder
             'league.view',
         ]);
 
-        $user->syncPermissions([
+        $coOwner->syncPermissions([
+            'league.view',
+        ]);
+
+        $default->syncPermissions([
             'league.view',
         ]);
     }

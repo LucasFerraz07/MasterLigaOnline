@@ -22,6 +22,7 @@ class UserResource extends JsonResource
             'league_id'  => $this->league_id,
             'balance'    => $this->balance,
             'user_type'  => $this->user_type,
+            'roles'      => $this->roles->pluck('name'),
             'is_active'  => $this->is_active,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
