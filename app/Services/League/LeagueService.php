@@ -2,11 +2,12 @@
 
 namespace App\Services\League;
 
+use App\Enums\Category;
 use App\Enums\UserType;
-use App\Exceptions\ApiException;
 use App\Http\Resources\League\LeagueCollection;
 use App\Http\Resources\League\LeagueResource;
 use App\Models\League;
+use App\Models\LeagueCategoryPrice;
 use App\Models\Owner;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -53,10 +54,10 @@ class LeagueService
             ]);
 
             $user = User::create([
-                'username'  => $data['owner']['username'],
-                'email'     => $data['owner']['email'],
-                'password'  => $data['owner']['password'],
-                'phone'     => $data['owner']['phone'],
+                'username' => $data['owner']['username'],
+                'email' => $data['owner']['email'],
+                'password' => $data['owner']['password'],
+                'phone' => $data['owner']['phone'],
                 'league_id' => $league->id,
                 'user_type' => UserType::LEAGUE_ADMIN,
             ]);
@@ -65,10 +66,18 @@ class LeagueService
 
             Owner::create([
                 'full_name' => $data['owner']['full_name'],
-                'cpf'       => $data['owner']['cpf'],
+                'cpf' => $data['owner']['cpf'],
                 'league_id' => $league->id,
-                'user_id'   => $user->id,
+                'user_id' => $user->id,
             ]);
+
+            foreach (Category::cases() as $category) {
+                LeagueCategoryPrice::create([
+                    'league_id' => $league->id,
+                    'category' => $category,
+                    'base_salary' => 0,
+                ]);
+            }
 
             $league->load(['owners.user', 'subscription']);
 
@@ -82,7 +91,7 @@ class LeagueService
             $league = League::findOrFail($data['id']);
 
             $league->update([
-                'name' => $data['name'] ?? $league->name
+                'name' => $data['name'] ?? $league->name,
             ]);
 
             $league->load(['owners.user', 'subscription']);

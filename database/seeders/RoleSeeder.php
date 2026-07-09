@@ -7,12 +7,13 @@ use App\Enums\UserType;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class RoleSeeder extends Seeder
 {
     public function run(): void
     {
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions = [
             'subscription.view',
@@ -35,6 +36,8 @@ class RoleSeeder extends Seeder
             'user.create',
             'user.update',
             'user.delete',
+            'league-category-price.view',
+            'league-category-price.update',
         ];
 
         foreach ($permissions as $permission) {
@@ -53,6 +56,8 @@ class RoleSeeder extends Seeder
 
         $leagueAdmin->syncPermissions([
             'league.view',
+            'league-category-price.view',
+            'league-category-price.update',
         ]);
 
         $coOwner->syncPermissions([
