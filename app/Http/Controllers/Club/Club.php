@@ -10,14 +10,18 @@ use App\Http\Requests\Club\IndexClubRequest;
 use App\Http\Requests\Club\StoreClubRequest;
 use App\Http\Requests\Club\UpdateClubRequest;
 use App\Services\Club\ClubService;
+use Dedoc\Scramble\Attributes\Endpoint;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 
+#[Group(name: 'Club')]
 class Club extends Controller
 {
     public function __construct(
         private readonly ClubService $service
     ) {}
 
+    #[Endpoint(operationId: 'indexClub', title: 'Lista clubes')]
     public function index(IndexClubRequest $request): JsonResponse
     {
         try {
@@ -28,6 +32,7 @@ class Club extends Controller
         }
     }
 
+    #[Endpoint(operationId: 'storeClub', title: 'Cria um clube')]
     public function store(StoreClubRequest $request): JsonResponse
     {
         try {
@@ -37,7 +42,8 @@ class Club extends Controller
             return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
         }
     }
-    
+
+    #[Endpoint(operationId: 'updateClub', title: 'Atualiza um clube')]
     public function update(UpdateClubRequest $request): JsonResponse
     {
         try {
@@ -48,6 +54,7 @@ class Club extends Controller
         }
     }
 
+    #[Endpoint(operationId: 'destroyClub', title: 'Remove um clube')]
     public function destroy(DeleteClubRequest $request): JsonResponse
     {
         try {

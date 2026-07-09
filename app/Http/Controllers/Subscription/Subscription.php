@@ -10,14 +10,18 @@ use App\Http\Requests\Subscription\IndexSubscriptionRequest;
 use App\Http\Requests\Subscription\StoreSubscriptionRequest;
 use App\Http\Requests\Subscription\UpdateSubscriptionRequest;
 use App\Services\Subscription\SubscriptionService;
+use Dedoc\Scramble\Attributes\Endpoint;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 
+#[Group(name: 'Subscription')]
 class Subscription extends Controller
 {
     public function __construct(
         private readonly SubscriptionService $service
     ) {}
 
+    #[Endpoint(operationId: 'indexSubscription', title: 'Lista assinaturas')]
     public function index(IndexSubscriptionRequest $request): JsonResponse
     {
         try {
@@ -28,6 +32,7 @@ class Subscription extends Controller
         }
     }
 
+    #[Endpoint(operationId: 'storeSubscription', title: 'Cria uma assinatura')]
     public function store(StoreSubscriptionRequest $request): JsonResponse
     {
         try {
@@ -38,6 +43,7 @@ class Subscription extends Controller
         }
     }
 
+    #[Endpoint(operationId: 'updateSubscription', title: 'Atualiza uma assinatura')]
     public function update(UpdateSubscriptionRequest $request): JsonResponse
     {
         try{
@@ -48,6 +54,7 @@ class Subscription extends Controller
         }
     }
 
+    #[Endpoint(operationId: 'destroySubscription', title: 'Remove uma assinatura')]
     public function destroy(DeleteSubscriptionRequest $request): JsonResponse
     {
         try {

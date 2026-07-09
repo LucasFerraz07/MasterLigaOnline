@@ -11,14 +11,18 @@ use App\Http\Requests\League\ShowLeagueRequest;
 use App\Http\Requests\League\StoreLeagueRequest;
 use App\Http\Requests\League\UpdateLeagueRequest;
 use App\Services\League\LeagueService;
+use Dedoc\Scramble\Attributes\Endpoint;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 
+#[Group(name: 'League')]
 class League extends Controller
 {
     public function __construct(
         private readonly LeagueService $service
     ) {}
 
+    #[Endpoint(operationId: 'showLeague', title: 'Obtém uma liga')]
     public function show(ShowLeagueRequest $request): JsonResponse
     {
         try {
@@ -29,6 +33,7 @@ class League extends Controller
         }
     }
 
+    #[Endpoint(operationId: 'storeLeague', title: 'Cria uma liga')]
     public function store(StoreLeagueRequest $request): JsonResponse
     {
         try {
@@ -39,6 +44,7 @@ class League extends Controller
         }
     }
 
+    #[Endpoint(operationId: 'updateLeague', title: 'Atualiza uma liga')]
     public function update(UpdateLeagueRequest $request): JsonResponse
     {
         try {
@@ -49,6 +55,7 @@ class League extends Controller
         }
     }
 
+    #[Endpoint(operationId: 'destroyLeague', title: 'Remove uma liga')]
     public function destroy(DeleteLeagueRequest $request): JsonResponse
     {
         try {
@@ -59,6 +66,7 @@ class League extends Controller
         }
     }
 
+    #[Endpoint(operationId: 'renewLeague', title: 'Renova a assinatura de uma liga')]
     public function renew(RenewSubscriptionLeagueRequest $request): JsonResponse
     {
         try {

@@ -7,14 +7,18 @@ use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Services\Auth\AuthService;
+use Dedoc\Scramble\Attributes\Endpoint;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 
+#[Group(name: 'Auth')]
 class Auth extends Controller
 {
     public function __construct(
         private readonly AuthService $service
     ) {}
 
+    #[Endpoint(operationId: 'loginAuth', title: 'Autentica um usuário')]
     public function login(LoginRequest $request): JsonResponse
     {
         try {
@@ -25,6 +29,7 @@ class Auth extends Controller
         }
     }
 
+    #[Endpoint(operationId: 'meAuth', title: 'Obtém o usuário autenticado')]
     public function me(): JsonResponse
     {
         try {
@@ -35,6 +40,7 @@ class Auth extends Controller
         }
     }
 
+    #[Endpoint(operationId: 'logoutAuth', title: 'Realiza logout do usuário')]
     public function logout(): JsonResponse
     {
         try {
@@ -45,6 +51,7 @@ class Auth extends Controller
         }
     }
 
+    #[Endpoint(operationId: 'refreshAuth', title: 'Renova o token de autenticação')]
     public function refresh(): JsonResponse
     {
         try {

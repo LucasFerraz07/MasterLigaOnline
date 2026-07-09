@@ -10,14 +10,18 @@ use App\Http\Requests\TransactionType\IndexTransactionTypeRequest;
 use App\Http\Requests\TransactionType\StoreTransactionTypeRequest;
 use App\Http\Requests\TransactionType\UpdateTransactionTypeRequest;
 use App\Services\TransactionType\TransactionTypeService;
+use Dedoc\Scramble\Attributes\Endpoint;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 
+#[Group(name: 'TransactionType')]
 class TransactionType extends Controller
 {
     public function __construct(
         private readonly TransactionTypeService $service
     ) {}
 
+    #[Endpoint(operationId: 'indexTransactionType', title: 'Lista tipos de transação')]
     public function index(IndexTransactionTypeRequest $request): JsonResponse
     {
         try {
@@ -28,6 +32,7 @@ class TransactionType extends Controller
         }
     }
 
+    #[Endpoint(operationId: 'storeTransactionType', title: 'Cria um tipo de transação')]
     public function store(StoreTransactionTypeRequest $request): JsonResponse
     {
         try {
@@ -38,6 +43,7 @@ class TransactionType extends Controller
         }
     }
 
+    #[Endpoint(operationId: 'updateTransactionType', title: 'Atualiza um tipo de transação')]
     public function update(UpdateTransactionTypeRequest $request): JsonResponse
     {
         try {
@@ -48,6 +54,7 @@ class TransactionType extends Controller
         }
     }
 
+    #[Endpoint(operationId: 'destroyTransactionType', title: 'Remove um tipo de transação')]
     public function destroy(DeleteTransactionTypeRequest $request): JsonResponse
     {
         try {

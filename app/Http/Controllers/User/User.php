@@ -11,14 +11,18 @@ use App\Http\Requests\User\ShowUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Services\User\UserService;
+use Dedoc\Scramble\Attributes\Endpoint;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 
+#[Group(name: 'User')]
 class User extends Controller
 {
     public function __construct(
         private readonly UserService $service
     ) {}
 
+    #[Endpoint(operationId: 'indexUser', title: 'Lista usuários')]
     public function index(IndexUserRequest $request): JsonResponse
     {
         try {
@@ -29,6 +33,7 @@ class User extends Controller
         }
     }
 
+    #[Endpoint(operationId: 'showUser', title: 'Obtém um usuário')]
     public function show(ShowUserRequest $request): JsonResponse
     {
         try {
@@ -39,6 +44,7 @@ class User extends Controller
         }
     }
 
+    #[Endpoint(operationId: 'storeUser', title: 'Cria um usuário')]
     public function store(StoreUserRequest $request): JsonResponse
     {
         try {
@@ -49,6 +55,7 @@ class User extends Controller
         }
     }
 
+    #[Endpoint(operationId: 'updateUser', title: 'Atualiza um usuário')]
     public function update(UpdateUserRequest $request): JsonResponse
     {
         try {
@@ -59,6 +66,7 @@ class User extends Controller
         }
     }
 
+    #[Endpoint(operationId: 'destroyUser', title: 'Remove um usuário')]
     public function destroy(DeleteUserRequest $request): JsonResponse
     {
         try {
