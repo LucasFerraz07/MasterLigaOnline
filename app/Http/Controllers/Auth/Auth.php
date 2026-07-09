@@ -18,7 +18,7 @@ class Auth extends Controller
         private readonly AuthService $service
     ) {}
 
-    #[Endpoint(operationId: 'loginAuth', title: 'Autentica um usuário')]
+    #[Endpoint(operationId: 'loginAuth', title: 'Login Auth')]
     public function login(LoginRequest $request): JsonResponse
     {
         try {
@@ -29,7 +29,7 @@ class Auth extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'meAuth', title: 'Obtém o usuário autenticado')]
+    #[Endpoint(operationId: 'meAuth', title: 'Me Auth')]
     public function me(): JsonResponse
     {
         try {
@@ -40,7 +40,7 @@ class Auth extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'logoutAuth', title: 'Realiza logout do usuário')]
+    #[Endpoint(operationId: 'logoutAuth', title: 'Logout Auth')]
     public function logout(): JsonResponse
     {
         try {
@@ -51,7 +51,7 @@ class Auth extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'refreshAuth', title: 'Renova o token de autenticação')]
+    #[Endpoint(operationId: 'refreshAuth', title: 'Refresh Auth')]
     public function refresh(): JsonResponse
     {
         try {

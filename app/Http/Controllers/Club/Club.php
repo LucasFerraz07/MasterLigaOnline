@@ -21,7 +21,7 @@ class Club extends Controller
         private readonly ClubService $service
     ) {}
 
-    #[Endpoint(operationId: 'indexClub', title: 'Lista clubes')]
+    #[Endpoint(operationId: 'indexClub', title: 'Index Club')]
     public function index(IndexClubRequest $request): JsonResponse
     {
         try {
@@ -32,7 +32,7 @@ class Club extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'storeClub', title: 'Cria um clube')]
+    #[Endpoint(operationId: 'storeClub', title: 'Store Club')]
     public function store(StoreClubRequest $request): JsonResponse
     {
         try {
@@ -43,7 +43,7 @@ class Club extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'updateClub', title: 'Atualiza um clube')]
+    #[Endpoint(operationId: 'updateClub', title: 'Update Club')]
     public function update(UpdateClubRequest $request): JsonResponse
     {
         try {
@@ -54,7 +54,7 @@ class Club extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'destroyClub', title: 'Remove um clube')]
+    #[Endpoint(operationId: 'destroyClub', title: 'Destroy Club')]
     public function destroy(DeleteClubRequest $request): JsonResponse
     {
         try {

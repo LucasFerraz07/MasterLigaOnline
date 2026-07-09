@@ -22,7 +22,7 @@ class User extends Controller
         private readonly UserService $service
     ) {}
 
-    #[Endpoint(operationId: 'indexUser', title: 'Lista usuários')]
+    #[Endpoint(operationId: 'indexUser', title: 'Index User')]
     public function index(IndexUserRequest $request): JsonResponse
     {
         try {
@@ -33,7 +33,7 @@ class User extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'showUser', title: 'Obtém um usuário')]
+    #[Endpoint(operationId: 'showUser', title: 'Show User')]
     public function show(ShowUserRequest $request): JsonResponse
     {
         try {
@@ -44,7 +44,7 @@ class User extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'storeUser', title: 'Cria um usuário')]
+    #[Endpoint(operationId: 'storeUser', title: 'Store User')]
     public function store(StoreUserRequest $request): JsonResponse
     {
         try {
@@ -55,7 +55,7 @@ class User extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'updateUser', title: 'Atualiza um usuário')]
+    #[Endpoint(operationId: 'updateUser', title: 'Update User')]
     public function update(UpdateUserRequest $request): JsonResponse
     {
         try {
@@ -66,7 +66,7 @@ class User extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'destroyUser', title: 'Remove um usuário')]
+    #[Endpoint(operationId: 'destroyUser', title: 'Destroy User')]
     public function destroy(DeleteUserRequest $request): JsonResponse
     {
         try {

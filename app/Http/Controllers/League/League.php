@@ -6,6 +6,7 @@ use App\Builder\ReturnApi;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\League\DeleteLeagueRequest;
+use App\Http\Requests\League\IndexLeagueRequest;
 use App\Http\Requests\League\RenewSubscriptionLeagueRequest;
 use App\Http\Requests\League\ShowLeagueRequest;
 use App\Http\Requests\League\StoreLeagueRequest;
@@ -22,7 +23,17 @@ class League extends Controller
         private readonly LeagueService $service
     ) {}
 
-    #[Endpoint(operationId: 'showLeague', title: 'Obtém uma liga')]
+    #[Endpoint(operationId: 'indexLeague', title: 'Index League')]
+    public function index(IndexLeagueRequest $request): JsonResponse
+    {
+        try{
+            $data = $this->service->index($request->validated());
+            return ReturnApi::success($data, 'Ligas listadas com sucesso!');
+        } catch (ApiException $e){
+            return ReturnApi::error($e-> getMessage(), $e->data, $e->getCode());
+        }
+    }
+    #[Endpoint(operationId: 'showLeague', title: 'Show League')]
     public function show(ShowLeagueRequest $request): JsonResponse
     {
         try {
@@ -33,7 +44,7 @@ class League extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'storeLeague', title: 'Cria uma liga')]
+    #[Endpoint(operationId: 'storeLeague', title: 'Store League')]
     public function store(StoreLeagueRequest $request): JsonResponse
     {
         try {
@@ -44,7 +55,7 @@ class League extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'updateLeague', title: 'Atualiza uma liga')]
+    #[Endpoint(operationId: 'updateLeague', title: 'Update League')]
     public function update(UpdateLeagueRequest $request): JsonResponse
     {
         try {
@@ -55,7 +66,7 @@ class League extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'destroyLeague', title: 'Remove uma liga')]
+    #[Endpoint(operationId: 'destroyLeague', title: 'Destroy League')]
     public function destroy(DeleteLeagueRequest $request): JsonResponse
     {
         try {
@@ -66,7 +77,7 @@ class League extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'renewLeague', title: 'Renova a assinatura de uma liga')]
+    #[Endpoint(operationId: 'renewLeague', title: 'Renew League')]
     public function renew(RenewSubscriptionLeagueRequest $request): JsonResponse
     {
         try {

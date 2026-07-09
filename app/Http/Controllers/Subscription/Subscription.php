@@ -21,7 +21,7 @@ class Subscription extends Controller
         private readonly SubscriptionService $service
     ) {}
 
-    #[Endpoint(operationId: 'indexSubscription', title: 'Lista assinaturas')]
+    #[Endpoint(operationId: 'indexSubscription', title: 'Index Subscription')]
     public function index(IndexSubscriptionRequest $request): JsonResponse
     {
         try {
@@ -32,7 +32,7 @@ class Subscription extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'storeSubscription', title: 'Cria uma assinatura')]
+    #[Endpoint(operationId: 'storeSubscription', title: 'Store Subscription')]
     public function store(StoreSubscriptionRequest $request): JsonResponse
     {
         try {
@@ -43,7 +43,7 @@ class Subscription extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'updateSubscription', title: 'Atualiza uma assinatura')]
+    #[Endpoint(operationId: 'updateSubscription', title: 'Update Subscription')]
     public function update(UpdateSubscriptionRequest $request): JsonResponse
     {
         try{
@@ -54,7 +54,7 @@ class Subscription extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'destroySubscription', title: 'Remove uma assinatura')]
+    #[Endpoint(operationId: 'destroySubscription', title: 'Destroy Subscription')]
     public function destroy(DeleteSubscriptionRequest $request): JsonResponse
     {
         try {

@@ -21,6 +21,7 @@ class LeagueService
         $trashed = $data['with_trashed'] ?? null;
 
         $query = League::query()
+            ->with(['owners.user', 'subscription'])
             ->when($trashed, fn ($query) => $query->withTrashed())
             ->when($search, function ($query) use ($search): void {
                 $query->where('name', 'ILIKE', "%{$search}%");
@@ -34,7 +35,7 @@ class LeagueService
 
     public function show(array $data): LeagueResource
     {
-        $league = League::findOrFail($data['id']);
+        $league = League::with(['owners.user', 'subscription'])->findOrFail($data['id']);
 
         return new LeagueResource($league);
     }
@@ -69,6 +70,8 @@ class LeagueService
                 'user_id'   => $user->id,
             ]);
 
+            $league->load(['owners.user', 'subscription']);
+
             return new LeagueResource($league);
         });
     }
@@ -81,6 +84,8 @@ class LeagueService
             $league->update([
                 'name' => $data['name'] ?? $league->name
             ]);
+
+            $league->load(['owners.user', 'subscription']);
 
             return new LeagueResource($league);
         });

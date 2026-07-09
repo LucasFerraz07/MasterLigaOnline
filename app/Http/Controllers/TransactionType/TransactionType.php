@@ -21,7 +21,7 @@ class TransactionType extends Controller
         private readonly TransactionTypeService $service
     ) {}
 
-    #[Endpoint(operationId: 'indexTransactionType', title: 'Lista tipos de transação')]
+    #[Endpoint(operationId: 'indexTransactionType', title: 'Index Transaction Type')]
     public function index(IndexTransactionTypeRequest $request): JsonResponse
     {
         try {
@@ -32,7 +32,7 @@ class TransactionType extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'storeTransactionType', title: 'Cria um tipo de transação')]
+    #[Endpoint(operationId: 'storeTransactionType', title: 'Store Transaction Type')]
     public function store(StoreTransactionTypeRequest $request): JsonResponse
     {
         try {
@@ -43,7 +43,7 @@ class TransactionType extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'updateTransactionType', title: 'Atualiza um tipo de transação')]
+    #[Endpoint(operationId: 'updateTransactionType', title: 'Update Transaction Type')]
     public function update(UpdateTransactionTypeRequest $request): JsonResponse
     {
         try {
@@ -54,7 +54,7 @@ class TransactionType extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'destroyTransactionType', title: 'Remove um tipo de transação')]
+    #[Endpoint(operationId: 'destroyTransactionType', title: 'Destroy Transaction Type')]
     public function destroy(DeleteTransactionTypeRequest $request): JsonResponse
     {
         try {
