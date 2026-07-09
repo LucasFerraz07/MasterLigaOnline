@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -34,13 +35,13 @@ class League extends Model
     protected function casts(): array
     {
         return [
-            'subscription_start'  => 'date',
-            'subscription_end'    => 'date',
-            'silver_limit'        => 'integer',
-            'golden_limit'        => 'integer',
-            'black_limit'         => 'integer',
+            'subscription_start' => 'date',
+            'subscription_end' => 'date',
+            'silver_limit' => 'integer',
+            'golden_limit' => 'integer',
+            'black_limit' => 'integer',
             'mulct_contract_limit' => 'integer',
-            'player_limit'        => 'integer',
+            'player_limit' => 'integer',
         ];
     }
 
@@ -57,5 +58,15 @@ class League extends Model
     public function owners(): HasOne
     {
         return $this->hasOne(Owner::class);
+    }
+
+    public function categoryPrices(): HasMany
+    {
+        return $this->hasMany(LeagueCategoryPrice::class);
+    }
+
+    public function squads(): HasMany
+    {
+        return $this->hasMany(Squad::class);
     }
 }
