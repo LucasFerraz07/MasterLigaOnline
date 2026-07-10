@@ -69,4 +69,9 @@ class League extends Model
     {
         return $this->hasMany(Squad::class);
     }
+
+    public function seasons(): HasMany
+    {
+        return $this->hasMany(Season::class);
+    }
 }

@@ -9,4 +9,5 @@ enum LeaguePhase: string
     case FirstHalf = 'first_half';
     case MidWindow = 'mid_window';
     case SecondHalf = 'second_half';
+    case Ended = 'ended';
 }
