@@ -22,57 +22,82 @@ class User extends Controller
         private readonly UserService $service
     ) {}
 
-    #[Endpoint(operationId: 'indexUser', title: 'Index User')]
+    #[Endpoint(operationId: 'indexUser', title: 'Index User', description: '**operationId:** `indexUser` — Lista usuários. Em **200**, `data` segue o schema **UserCollection** (paginado). Requer permissão: user.view')]
     public function index(IndexUserRequest $request): JsonResponse
     {
         try {
             $data = $this->service->index($request->validated());
             return ReturnApi::success($data, 'Usuários listados com sucesso.');
         } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
             return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
         }
     }
 
-    #[Endpoint(operationId: 'showUser', title: 'Show User')]
+    #[Endpoint(operationId: 'showUser', title: 'Show User', description: '**operationId:** `showUser` — Obtém um usuário. Em **200**, `data` segue o schema **UserResource**. Requer permissão: user.view')]
     public function show(ShowUserRequest $request): JsonResponse
     {
         try {
             $data = $this->service->show($request->validated());
             return ReturnApi::success($data, 'Usuário encontrado com sucesso.');
         } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
             return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
         }
     }
 
-    #[Endpoint(operationId: 'storeUser', title: 'Store User')]
+    #[Endpoint(operationId: 'storeUser', title: 'Store User', description: '**operationId:** `storeUser` — Cria um usuário. Em **200**, `data` segue o schema **UserResource**. Requer permissão: user.create')]
     public function store(StoreUserRequest $request): JsonResponse
     {
         try {
             $data = $this->service->store($request->validated());
             return ReturnApi::success($data, 'Usuário criado com sucesso.');
         } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
             return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
         }
     }
 
-    #[Endpoint(operationId: 'updateUser', title: 'Update User')]
+    #[Endpoint(operationId: 'updateUser', title: 'Update User', description: '**operationId:** `updateUser` — Atualiza um usuário. Em **200**, `data` segue o schema **UserResource**. Requer permissão: user.update')]
     public function update(UpdateUserRequest $request): JsonResponse
     {
         try {
             $data = $this->service->update($request->validated());
             return ReturnApi::success($data, 'Usuário atualizado com sucesso.');
         } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
             return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
         }
     }
 
-    #[Endpoint(operationId: 'destroyUser', title: 'Destroy User')]
+    #[Endpoint(operationId: 'destroyUser', title: 'Destroy User', description: '**operationId:** `destroyUser` — Remove um usuário. Em **200**, `data` é `null`. Requer permissão: user.delete')]
     public function destroy(DeleteUserRequest $request): JsonResponse
     {
         try {
             $this->service->destroy($request->validated());
             return ReturnApi::success(null, 'Usuário deletado com sucesso.');
         } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
             return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
         }
     }

@@ -11,7 +11,9 @@ use App\Builder\ReturnApi;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Exceptions\UnauthorizedException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -40,6 +42,18 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (AuthorizationException|UnauthorizedException $_e, Request $request) {
             if ($request->is('api/*')) {
                 return ReturnApi::error('Você não tem permissão para acessar este recurso.', null, 403);
+            }
+        });
+
+        $exceptions->render(function (NotFoundHttpException $e, Request $request) {
+            if ($request->is('api/*')) {
+                return ReturnApi::error('Rota não encontrada.', $e->getMessage(), 404);
+            }
+        });
+
+        $exceptions->render(function (ValidationException $e, Request $request) {
+            if ($request->is('api/*')) {
+                return ReturnApi::error($e->validator->errors()->first(), $e->validator->errors()->toArray(), 422);
             }
         });
     })->create();

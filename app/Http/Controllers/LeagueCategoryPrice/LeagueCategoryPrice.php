@@ -19,7 +19,7 @@ class LeagueCategoryPrice extends Controller
         private readonly LeagueCategoryPriceService $service
     ) {}
 
-    #[Endpoint(operationId: 'indexLeagueCategoryPrice', title: 'Index League Category Price')]
+    #[Endpoint(operationId: 'indexLeagueCategoryPrice', title: 'Index League Category Price', description: '**operationId:** `indexLeagueCategoryPrice` — Lista preços por categoria da liga. Em **200**, `data` segue o schema **LeagueCategoryPriceCollection** (paginado). Requer permissão: league-category-price.view')]
     public function index(IndexLeagueCategoryPriceRequest $request): JsonResponse
     {
         try {
@@ -27,11 +27,16 @@ class LeagueCategoryPrice extends Controller
 
             return ReturnApi::success($data, 'Preços por categoria listados com sucesso.');
         } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
             return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
         }
     }
 
-    #[Endpoint(operationId: 'updateLeagueCategoryPrice', title: 'Update League Category Price')]
+    #[Endpoint(operationId: 'updateLeagueCategoryPrice', title: 'Update League Category Price', description: '**operationId:** `updateLeagueCategoryPrice` — Atualiza o preço de uma categoria da liga. Em **200**, `data` segue o schema **LeagueCategoryPriceResource**. Requer permissão: league-category-price.update')]
     public function update(UpdateLeagueCategoryPriceRequest $request): JsonResponse
     {
         try {
@@ -39,6 +44,11 @@ class LeagueCategoryPrice extends Controller
 
             return ReturnApi::success($data, 'Preço da categoria atualizado com sucesso.');
         } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
             return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
         }
     }

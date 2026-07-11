@@ -23,67 +23,97 @@ class League extends Controller
         private readonly LeagueService $service
     ) {}
 
-    #[Endpoint(operationId: 'indexLeague', title: 'Index League')]
+    #[Endpoint(operationId: 'indexLeague', title: 'Index League', description: '**operationId:** `indexLeague` — Lista as ligas. Em **200**, `data` segue o schema **LeagueCollection** (paginado). Requer permissão: league.view')]
     public function index(IndexLeagueRequest $request): JsonResponse
     {
         try{
             $data = $this->service->index($request->validated());
             return ReturnApi::success($data, 'Ligas listadas com sucesso!');
         } catch (ApiException $e){
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
             return ReturnApi::error($e-> getMessage(), $e->data, $e->getCode());
         }
     }
-    #[Endpoint(operationId: 'showLeague', title: 'Show League')]
+    #[Endpoint(operationId: 'showLeague', title: 'Show League', description: '**operationId:** `showLeague` — Obtém uma liga. Em **200**, `data` segue o schema **LeagueResource**. Requer permissão: league.view')]
     public function show(ShowLeagueRequest $request): JsonResponse
     {
         try {
             $data = $this->service->show($request->validated());
             return ReturnApi::success($data, 'Liga encontrada com sucesso.');
         } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
             return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
         }
     }
 
-    #[Endpoint(operationId: 'storeLeague', title: 'Store League')]
+    #[Endpoint(operationId: 'storeLeague', title: 'Store League', description: '**operationId:** `storeLeague` — Cria uma liga. Em **200**, `data` segue o schema **LeagueResource**. Requer permissão: league.create')]
     public function store(StoreLeagueRequest $request): JsonResponse
     {
         try {
             $data = $this->service->store($request->validated());
             return ReturnApi::success($data, 'Liga criada com sucesso.');
         } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
             return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
         }
     }
 
-    #[Endpoint(operationId: 'updateLeague', title: 'Update League')]
+    #[Endpoint(operationId: 'updateLeague', title: 'Update League', description: '**operationId:** `updateLeague` — Atualiza uma liga. Em **200**, `data` segue o schema **LeagueResource**. Requer permissão: league.update')]
     public function update(UpdateLeagueRequest $request): JsonResponse
     {
         try {
             $data = $this->service->update($request->validated());
             return ReturnApi::success($data, 'Liga atualizada com sucesso.');
         } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
             return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
         }
     }
 
-    #[Endpoint(operationId: 'destroyLeague', title: 'Destroy League')]
+    #[Endpoint(operationId: 'destroyLeague', title: 'Destroy League', description: '**operationId:** `destroyLeague` — Remove uma liga. Em **200**, `data` é `null`. Requer permissão: league.delete')]
     public function destroy(DeleteLeagueRequest $request): JsonResponse
     {
         try {
             $this->service->destroy($request->validated());
             return ReturnApi::success(null, 'Liga deletada com sucesso.');
         } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
             return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
         }
     }
 
-    #[Endpoint(operationId: 'renewLeague', title: 'Renew League')]
+    #[Endpoint(operationId: 'renewLeague', title: 'Renew League', description: '**operationId:** `renewLeague` — Renova a assinatura de uma liga. Em **200**, `data` segue o schema **LeagueResource**. Requer permissão: league.create')]
     public function renew(RenewSubscriptionLeagueRequest $request): JsonResponse
     {
         try {
             $data = $this->service->renewSubscription($request->validated());
             return ReturnApi::success($data, 'Assinatura renovada com sucesso.');
         } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
             return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
         }
     }

@@ -21,7 +21,7 @@ class Season extends Controller
         private readonly SeasonService $service
     ) {}
 
-    #[Endpoint(operationId: 'indexSeason', title: 'Index Season')]
+    #[Endpoint(operationId: 'indexSeason', title: 'Index Season', description: '**operationId:** `indexSeason` — Lista temporadas. Em **200**, `data` segue o schema **SeasonCollection** (paginado). Requer permissão: season.view')]
     public function index(IndexSeasonRequest $request): JsonResponse
     {
         try {
@@ -29,11 +29,16 @@ class Season extends Controller
 
             return ReturnApi::success($data, 'Temporadas listadas com sucesso.');
         } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
             return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
         }
     }
 
-    #[Endpoint(operationId: 'showSeason', title: 'Show Season')]
+    #[Endpoint(operationId: 'showSeason', title: 'Show Season', description: '**operationId:** `showSeason` — Obtém uma temporada. Em **200**, `data` segue o schema **SeasonResource**. Requer permissão: season.view')]
     public function show(ShowSeasonRequest $request): JsonResponse
     {
         try {
@@ -41,11 +46,16 @@ class Season extends Controller
 
             return ReturnApi::success($data, 'Temporada encontrada com sucesso.');
         } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
             return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
         }
     }
 
-    #[Endpoint(operationId: 'storeSeason', title: 'Store Season')]
+    #[Endpoint(operationId: 'storeSeason', title: 'Store Season', description: '**operationId:** `storeSeason` — Cria uma temporada. Em **200**, `data` segue o schema **SeasonResource**. Requer permissão: season.create')]
     public function store(StoreSeasonRequest $request): JsonResponse
     {
         try {
@@ -53,11 +63,16 @@ class Season extends Controller
 
             return ReturnApi::success($data, 'Temporada criada com sucesso.');
         } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
             return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
         }
     }
 
-    #[Endpoint(operationId: 'advancePhaseSeason', title: 'Advance Season Phase')]
+    #[Endpoint(operationId: 'advancePhaseSeason', title: 'Advance Season Phase', description: '**operationId:** `advancePhaseSeason` — Avança a fase da temporada. Em **200**, `data` segue o schema **SeasonResource**. Requer permissão: season.update')]
     public function advancePhase(AdvancePhaseSeasonRequest $request): JsonResponse
     {
         try {
@@ -65,6 +80,11 @@ class Season extends Controller
 
             return ReturnApi::success($data, 'Fase da temporada avançada com sucesso.');
         } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
             return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
         }
     }
