@@ -16,11 +16,11 @@ class TransactionTypeResource extends JsonResource
     {
         return [
             'id'          => $this->id,
-            'name'        => $this->name,
-            'description' => $this->description,
-            'operation'   => $this->operation,
-            'created_at'  => $this->created_at,
-            'updated_at'  => $this->updated_at,
+            'name'        => (string) $this->name,
+            'description' => $this->description !== null ? (string) $this->description : null,
+            'operation'   => (string) $this->operation->value,
+            'created_at'  => (string) $this->created_at,
+            'updated_at'  => (string) $this->updated_at,
         ];
     }
 }

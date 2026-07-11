@@ -18,20 +18,20 @@ class LeagueResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'silver_limit' => $this->silver_limit,
-            'golden_limit'  => $this->golden_limit,
-            'black_limit' => $this->black_limit,
-            'mulct_contract_limit' => $this->mulct_contract_limit,
-            'player_limit' => $this->player_limit,
+            'name' => (string) $this->name,
+            'silver_limit' => $this->silver_limit !== null ? (int) $this->silver_limit : null,
+            'golden_limit'  => $this->golden_limit !== null ? (int) $this->golden_limit : null,
+            'black_limit' => $this->black_limit !== null ? (int) $this->black_limit : null,
+            'mulct_contract_limit' => (int) $this->mulct_contract_limit,
+            'player_limit' => $this->player_limit !== null ? (int) $this->player_limit : null,
             'subscription_id' => $this->subscription_id,
-            'subscription_start' => $this->subscription_start,
-            'subscription_end' => $this->subscription_end,
-            'is_active' => $this->is_active,
+            'subscription_start' => (string) $this->subscription_start,
+            'subscription_end' => (string) $this->subscription_end,
+            'is_active' => (bool) $this->is_active,
             'owner' => OwnerResource::make($this->whenLoaded('owners')),
             'subscription' => SubscriptionResource::make($this->whenLoaded('subscription')),
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'created_at' => (string) $this->created_at,
+            'updated_at' => (string) $this->updated_at,
         ];
     }
 }

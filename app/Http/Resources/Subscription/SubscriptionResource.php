@@ -16,11 +16,11 @@ class SubscriptionResource extends JsonResource
     {
         return [
             'id'         => $this->id,
-            'name'       => $this->name,
-            'user_limit' => $this->user_limit,
-            'price'      => $this->price,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'name'       => (string) $this->name,
+            'user_limit' => $this->user_limit !== null ? (int) $this->user_limit : null,
+            'price'      => (string) $this->price,
+            'created_at' => (string) $this->created_at,
+            'updated_at' => (string) $this->updated_at,
         ];
     }
 }

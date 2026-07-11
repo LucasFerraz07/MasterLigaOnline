@@ -17,11 +17,11 @@ class ClubResource extends JsonResource
     {
         return [
             'id'         => $this->id,
-            'name'       => $this->name,
-            'crest'      => $this->crest ? Storage::disk('public')->url($this->crest) : null,
-            'region'     => $this->region,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'name'       => (string) $this->name,
+            'crest'      => (string) $this->crest ? Storage::disk('public')->url($this->crest) : null,
+            'region'     => (string) $this->region->value,
+            'created_at' => (string) $this->created_at,
+            'updated_at' => (string) $this->updated_at,
         ];
     }
 }

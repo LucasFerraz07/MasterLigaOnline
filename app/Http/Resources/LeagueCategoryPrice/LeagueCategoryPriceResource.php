@@ -17,11 +17,11 @@ class LeagueCategoryPriceResource extends JsonResource
         return [
             'id' => $this->id,
             'league_id' => $this->league_id,
-            'category' => $this->category,
-            'base_salary' => $this->base_salary,
-            'base_passe' => $this->base_passe,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'category' => (string) $this->category->value,
+            'base_salary' => (string) $this->base_salary,
+            'base_passe' => (string) $this->base_passe,
+            'created_at' => (string) $this->created_at,
+            'updated_at' => (string) $this->updated_at,
         ];
     }
 }

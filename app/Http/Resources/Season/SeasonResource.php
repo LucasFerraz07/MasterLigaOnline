@@ -16,13 +16,13 @@ class SeasonResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'season_number' => $this->season_number,
-            'start_date' => $this->start_date,
-            'end_date' => $this->end_date,
-            'status' => $this->status,
-            'phase' => $this->phase,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'season_number' => (int) $this->season_number,
+            'start_date' => (string) $this->start_date,
+            'end_date' => $this->end_date !== null ? (string) $this->end_date : null,
+            'status' => (string) $this->status->value,
+            'phase' => (string) $this->phase->value,
+            'created_at' => (string) $this->created_at,
+            'updated_at' => (string) $this->updated_at,
         ];
     }
 }
