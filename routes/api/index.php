@@ -11,3 +11,4 @@ Route::prefix('league-category-price')->group(base_path('routes/api/league-categ
 Route::prefix('season')->group(base_path('routes/api/season.php'));
 Route::prefix('user')->group(base_path('routes/api/user.php'));
 Route::prefix('player')->group(base_path('routes/api/player.php'));
+Route::prefix('squad')->group(base_path('routes/api/squad.php'));
