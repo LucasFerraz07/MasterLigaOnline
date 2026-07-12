@@ -10,6 +10,7 @@ use App\Models\Season;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class PlayerService
 {
@@ -47,6 +48,22 @@ class PlayerService
     public function show(array $data): PlayerResource
     {
         $player = $this->baseQuery()->where('players.id', $data['id'])->firstOrFail();
+
+        return new PlayerResource($player);
+    }
+
+    public function uploadPlayerImage(array $data): PlayerResource
+    {
+        $player = Player::findOrFail($data['id']);
+
+        if ($player->image_path !== null) {
+            Storage::disk('public')->delete($player->image_path);
+        }
+
+        $player->image_path = $data['image']->store('images/players', 'public');
+        $player->save();
+
+        $player = $this->baseQuery()->where('players.id', $player->id)->firstOrFail();
 
         return new PlayerResource($player);
     }

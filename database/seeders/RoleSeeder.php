@@ -42,6 +42,7 @@ class RoleSeeder extends Seeder
             'season.create',
             'season.update',
             'player.view',
+            'player.update',
         ];
 
         foreach ($permissions as $permission) {
@@ -71,6 +72,8 @@ class RoleSeeder extends Seeder
         $coOwner->syncPermissions([
             'league.view',
             'player.view',
+            'league-category-price.view',
+            'league-category-price.update',
         ]);
 
         $default->syncPermissions([

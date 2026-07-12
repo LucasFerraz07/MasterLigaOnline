@@ -4,6 +4,7 @@ namespace App\Http\Resources\Player;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class PlayerResource extends JsonResource
 {
@@ -23,6 +24,7 @@ class PlayerResource extends JsonResource
             'position' => (string) $this->position,
             'nationality' => (string) $this->nationality,
             'category' => (string) $this->category->value,
+            'image_url' => $this->image_path ? Storage::disk('public')->url($this->image_path) : null,
             'salary' => $salary,
             'passe' => $salary !== null ? bcmul($salary, '10', 2) : null,
             'created_at' => (string) $this->created_at,

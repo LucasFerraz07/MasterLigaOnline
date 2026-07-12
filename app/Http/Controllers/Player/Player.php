@@ -7,6 +7,7 @@ use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Player\IndexPlayerRequest;
 use App\Http\Requests\Player\ShowPlayerRequest;
+use App\Http\Requests\Player\UploadPlayerImageRequest;
 use App\Services\Player\PlayerService;
 use Dedoc\Scramble\Attributes\Endpoint;
 use Dedoc\Scramble\Attributes\Group;
@@ -41,6 +42,22 @@ class Player extends Controller
         try {
             $data = $this->service->show($request->validated());
             return ReturnApi::success($data, 'Jogador encontrado com sucesso.');
+        } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
+            return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
+        }
+    }
+
+    #[Endpoint(operationId: 'uploadPlayerImage', title: 'Upload Player Image', description: '**operationId:** `uploadPlayerImage` — Faz upload da imagem de um jogador. Em **200**, `data` segue o schema **PlayerResource**. Requer permissão: player.update')]
+    public function uploadImage(UploadPlayerImageRequest $request): JsonResponse
+    {
+        try {
+            $data = $this->service->uploadPlayerImage($request->validated());
+            return ReturnApi::success($data, 'Imagem do jogador enviada com sucesso.');
         } catch (ApiException $e) {
             /**
              * @status 400

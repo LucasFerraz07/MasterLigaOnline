@@ -7,3 +7,7 @@ Route::middleware('auth.api', 'permission:player.view')->group(function () {
     Route::get('/', [Player::class, 'index']);
     Route::get('/{id}', [Player::class, 'show']);
 });
+
+Route::middleware('auth.api', 'permission:player.update')->group(function () {
+    Route::post('image/{id}', [Player::class, 'uploadImage']);
+});

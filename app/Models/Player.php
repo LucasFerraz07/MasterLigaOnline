@@ -19,6 +19,7 @@ class Player extends Model
         'position',
         'nationality',
         'category',
+        'image_path',
     ];
 
     protected function casts(): array
