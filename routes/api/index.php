@@ -13,3 +13,5 @@ Route::prefix('user')->group(base_path('routes/api/user.php'));
 Route::prefix('player')->group(base_path('routes/api/player.php'));
 Route::prefix('squad')->group(base_path('routes/api/squad.php'));
 Route::prefix('club-identity')->group(base_path('routes/api/club-identity.php'));
+Route::prefix('transfer')->group(base_path('routes/api/transfer.php'));
+Route::prefix('financial-transaction')->group(base_path('routes/api/financial-transaction.php'));
