@@ -76,6 +76,7 @@ class LeagueService
                     'league_id' => $league->id,
                     'category' => $category,
                     'base_salary' => 0,
+                    'min_overall' => $category->defaultMinOverall(),
                 ]);
             }
 

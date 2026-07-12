@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\Category;
 use App\Models\Player;
 use Illuminate\Console\Command;
 
@@ -17,7 +16,6 @@ class ImportPlayersFromCsv extends Command
         'nome' => 'name',
         'nacionalidade' => 'nationality',
         'overall' => 'overall',
-        'categoria' => 'category',
     ];
 
     public function handle(): int
@@ -53,11 +51,10 @@ class ImportPlayersFromCsv extends Command
 
             $data = array_combine($header, $row);
             $name = trim((string) ($data['name'] ?? ''));
-            $category = Category::tryFrom(strtolower(trim((string) ($data['category'] ?? ''))));
 
-            if ($name === '' || $category === null) {
+            if ($name === '') {
                 $skipped++;
-                $this->warn("Linha ignorada (nome ou categoria inválidos): ".implode(',', $row));
+                $this->warn('Linha ignorada (nome inválido): '.implode(',', $row));
 
                 continue;
             }
@@ -68,7 +65,6 @@ class ImportPlayersFromCsv extends Command
                     'overall' => (int) ($data['overall'] ?? 0),
                     'position' => trim((string) ($data['position'] ?? '')) ?: null,
                     'nationality' => trim((string) ($data['nationality'] ?? '')) ?: null,
-                    'category' => $category,
                 ]
             );
 

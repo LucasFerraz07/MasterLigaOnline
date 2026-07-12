@@ -35,6 +35,7 @@ class UpdateLeagueCategoryPriceRequest extends FormRequest
         return [
             'id' => ['required', 'uuid', 'exists:league_category_prices,id'],
             'base_salary' => ['required', 'numeric', 'min:0'],
+            'min_overall' => ['required', 'integer', 'min:0', 'max:99'],
         ];
     }
 
@@ -47,6 +48,7 @@ class UpdateLeagueCategoryPriceRequest extends FormRequest
     {
         return [
             'base_salary' => 'salário base',
+            'min_overall' => 'piso de overall',
         ];
     }
 }

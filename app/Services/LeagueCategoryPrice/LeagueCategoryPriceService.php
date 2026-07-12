@@ -29,6 +29,7 @@ class LeagueCategoryPriceService
 
         $categoryPrice->update([
             'base_salary' => $data['base_salary'],
+            'min_overall' => $data['min_overall'],
         ]);
 
         return new LeagueCategoryPriceResource($categoryPrice);

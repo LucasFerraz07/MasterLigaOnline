@@ -19,6 +19,7 @@ class LeagueCategoryPrice extends Model
         'league_id',
         'category',
         'base_salary',
+        'min_overall',
     ];
 
     protected $appends = [
@@ -30,6 +31,7 @@ class LeagueCategoryPrice extends Model
         return [
             'category' => Category::class,
             'base_salary' => 'decimal:2',
+            'min_overall' => 'integer',
         ];
     }
 

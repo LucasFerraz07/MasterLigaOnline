@@ -23,7 +23,7 @@ class PlayerResource extends JsonResource
             'overall' => (int) $this->overall,
             'position' => (string) $this->position,
             'nationality' => (string) $this->nationality,
-            'category' => (string) $this->category->value,
+            'category' => $this->category !== null ? (string) $this->category : null,
             'image_url' => $this->image_path ? Storage::disk('public')->url($this->image_path) : null,
             'salary' => $salary,
             'passe' => $salary !== null ? bcmul($salary, '10', 2) : null,

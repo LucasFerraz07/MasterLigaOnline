@@ -28,7 +28,7 @@ class PlayerService
         $maxPasse = $data['max_passe'] ?? null;
 
         $query = $this->baseQuery()
-            ->when($category, fn (Builder $query) => $query->where('players.category', $category))
+            ->when($category, fn (Builder $query) => $query->where('league_category_prices.category', $category))
             ->when($search, function (Builder $query) use ($search): void {
                 $query->where('players.name', 'ILIKE', "%{$search}%");
             })
@@ -76,11 +76,21 @@ class PlayerService
         return Player::query()
             ->select([
                 'players.*',
+                'league_category_prices.category as category',
                 DB::raw('COALESCE(squads.salary, league_category_prices.base_salary) as salary'),
             ])
             ->leftJoin('league_category_prices', function ($join) use ($leagueId): void {
-                $join->on('league_category_prices.category', '=', 'players.category')
-                    ->where('league_category_prices.league_id', $leagueId);
+                // Categoria do jogador = a faixa de league_category_prices com o maior
+                // min_overall que ainda seja <= players.overall (piso configurável por liga).
+                $join->where('league_category_prices.league_id', $leagueId)
+                    ->whereColumn('league_category_prices.min_overall', '<=', 'players.overall')
+                    ->whereNotExists(function ($query) use ($leagueId): void {
+                        $query->select(DB::raw(1))
+                            ->from('league_category_prices as lcp2')
+                            ->where('lcp2.league_id', $leagueId)
+                            ->whereColumn('lcp2.min_overall', '<=', 'players.overall')
+                            ->whereColumn('lcp2.min_overall', '>', 'league_category_prices.min_overall');
+                    });
             })
             ->leftJoin('squads', function ($join) use ($leagueId, $seasonId): void {
                 $join->on('squads.player_id', '=', 'players.id')

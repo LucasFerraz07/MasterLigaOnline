@@ -18,6 +18,7 @@ class LeagueCategoryPriceResource extends JsonResource
             'id' => $this->id,
             'league_id' => $this->league_id,
             'category' => (string) $this->category->value,
+            'min_overall' => (int) $this->min_overall,
             'base_salary' => (string) $this->base_salary,
             'base_passe' => (string) $this->base_passe,
             'created_at' => (string) $this->created_at,
