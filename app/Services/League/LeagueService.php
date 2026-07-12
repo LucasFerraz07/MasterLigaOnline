@@ -10,10 +10,15 @@ use App\Models\League;
 use App\Models\LeagueCategoryPrice;
 use App\Models\Owner;
 use App\Models\User;
+use App\Services\ClubIdentity\ClubIdentityService;
 use Illuminate\Support\Facades\DB;
 
 class LeagueService
 {
+    public function __construct(
+        private readonly ClubIdentityService $clubIdentityService
+    ) {}
+
     public function index(array $data): LeagueCollection
     {
         $page = $data['page'] ?? 1;
@@ -63,6 +68,8 @@ class LeagueService
             ]);
 
             $user->assignRole(UserType::LEAGUE_ADMIN->value);
+
+            $this->clubIdentityService->assignRandomClub($league->id, $user->id);
 
             Owner::create([
                 'full_name' => $data['owner']['full_name'],

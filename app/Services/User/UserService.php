@@ -6,11 +6,16 @@ use App\Enums\UserType;
 use App\Http\Resources\User\UserCollection;
 use App\Http\Resources\User\UserResource;
 use App\Models\User;
+use App\Services\ClubIdentity\ClubIdentityService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class UserService
 {
+    public function __construct(
+        private readonly ClubIdentityService $clubIdentityService
+    ) {}
+
     public function index(array $data): UserCollection
     {
         $page = $data['page'] ?? 1;
@@ -56,6 +61,8 @@ class UserService
             ]);
 
             $user->assignRole($data['role']);
+
+            $this->clubIdentityService->assignRandomClub($leagueId, $user->id);
 
             return new UserResource($user);
         });
