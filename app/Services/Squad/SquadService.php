@@ -11,6 +11,7 @@ use App\Models\LeagueCategoryPrice;
 use App\Models\Season;
 use App\Models\Squad;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -32,6 +33,7 @@ class SquadService
             ->orderBy('players.name');
 
         $paginator = $query->paginate($perPage, ['*'], 'page', $page);
+        $this->hydratePlayers($paginator->getCollection());
 
         return new SquadCollection($paginator);
     }
@@ -39,6 +41,7 @@ class SquadService
     public function show(array $data): SquadResource
     {
         $squad = $this->baseQuery()->where('squads.id', $data['id'])->firstOrFail();
+        $this->hydratePlayers(new Collection([$squad]));
 
         return new SquadResource($squad);
     }
@@ -87,18 +90,26 @@ class SquadService
         $query = Squad::query()
             ->select([
                 'squads.*',
-                'players.name as player_name',
-                'players.overall as player_overall',
-                'players.position as player_position',
-                'players.image_path as player_image_path',
                 'league_category_prices.category as player_category',
-                'users.username as owner_username',
             ])
             ->join('players', 'players.id', '=', 'squads.player_id')
-            ->join('users', 'users.id', '=', 'squads.user_id');
+            ->with(['user', 'player']);
 
         LeagueCategoryPrice::applyBestMatchJoin($query, leagueIdColumn: 'squads.league_id');
 
         return $query;
+    }
+
+    /**
+     * PlayerResource espera `category`/`salary` já resolvidos para a liga do squad
+     * (a coluna `players.category` não existe mais — é calculada por liga). Como aqui
+     * o jogador já pertence a este squad, o salário correto é sempre o do próprio squad.
+     */
+    private function hydratePlayers(Collection $squads): void
+    {
+        $squads->each(function (Squad $squad): void {
+            $squad->player->setAttribute('category', $squad->player_category);
+            $squad->player->setAttribute('salary', $squad->salary);
+        });
     }
 }

@@ -2,9 +2,10 @@
 
 namespace App\Http\Resources\Squad;
 
+use App\Http\Resources\Player\PlayerResource;
+use App\Http\Resources\User\SimplifiedUserResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 class SquadResource extends JsonResource
 {
@@ -18,18 +19,8 @@ class SquadResource extends JsonResource
         return [
             'id' => $this->id,
             'league_id' => $this->league_id,
-            'user' => [
-                'id' => $this->user_id,
-                'username' => (string) $this->owner_username,
-            ],
-            'player' => [
-                'id' => $this->player_id,
-                'name' => (string) $this->player_name,
-                'overall' => (int) $this->player_overall,
-                'position' => (string) $this->player_position,
-                'category' => $this->player_category !== null ? (string) $this->player_category : null,
-                'image_url' => $this->player_image_path ? Storage::disk('public')->url($this->player_image_path) : null,
-            ],
+            'user' => SimplifiedUserResource::make($this->whenLoaded('user')),
+            'player' => PlayerResource::make($this->whenLoaded('player')),
             'acquisition_type' => $this->acquisition_type?->value,
             'salary' => (string) $this->salary,
             'passe' => (string) $this->passe,

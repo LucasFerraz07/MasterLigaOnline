@@ -38,7 +38,7 @@ class ClubIdentityService
 
     public function show(array $data): ClubIdentityResource
     {
-        $clubIdentity = $this->baseQuery()->where('club_identities.id', $data['id'])->firstOrFail();
+        $clubIdentity = ClubIdentity::with(['user', 'club'])->findOrFail($data['id']);
 
         return new ClubIdentityResource($clubIdentity);
     }
@@ -101,14 +101,8 @@ class ClubIdentityService
     private function baseQuery(): Builder
     {
         return ClubIdentity::query()
-            ->select([
-                'club_identities.*',
-                'clubs.name as club_name',
-                'clubs.crest as club_crest',
-                'clubs.region as club_region',
-                'users.username as owner_username',
-            ])
+            ->select('club_identities.*')
             ->join('clubs', 'clubs.id', '=', 'club_identities.club_id')
-            ->join('users', 'users.id', '=', 'club_identities.user_id');
+            ->with(['user', 'club']);
     }
 }
