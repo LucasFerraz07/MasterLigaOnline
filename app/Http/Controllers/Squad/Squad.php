@@ -6,6 +6,7 @@ use App\Builder\ReturnApi;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Squad\AdjustSalarySquadRequest;
+use App\Http\Requests\Squad\BuyFreeAgentSquadRequest;
 use App\Http\Requests\Squad\IndexSquadRequest;
 use App\Http\Requests\Squad\ShowSquadRequest;
 use App\Services\Squad\SquadService;
@@ -58,6 +59,22 @@ class Squad extends Controller
         try {
             $data = $this->service->adjustSalary($request->validated());
             return ReturnApi::success($data, 'Salário reajustado com sucesso.');
+        } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
+            return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
+        }
+    }
+
+    #[Endpoint(operationId: 'buyFreeAgentSquad', title: 'Buy Free Agent', description: '**operationId:** `buyFreeAgentSquad` — Compra um jogador livre para o próprio elenco, debitando o passe (10× o salário-base da categoria) do saldo do comprador. Restrito a janelas de mercado aberto (Primeira Janela ou Janela Intermediária). Em **200**, `data` segue o schema **SquadResource**. Requer permissão: squad.create')]
+    public function buyFreeAgent(BuyFreeAgentSquadRequest $request): JsonResponse
+    {
+        try {
+            $data = $this->service->buyFreeAgent($request->validated());
+            return ReturnApi::success($data, 'Jogador contratado com sucesso.');
         } catch (ApiException $e) {
             /**
              * @status 400

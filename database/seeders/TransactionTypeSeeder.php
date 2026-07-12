@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\TransactionType;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class TransactionTypeSeeder extends Seeder
 {
@@ -13,7 +12,7 @@ class TransactionTypeSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('transaction_types')->insert([
+        $types = [
             [
                 'name' => 'free_purchase',
                 'description' => 'Compra gratuita',
@@ -22,28 +21,32 @@ class TransactionTypeSeeder extends Seeder
             [
                 'name' => 'negotiation_purchase',
                 'description' => 'Compra por negociação',
-                'operation' => 'debit'
+                'operation' => 'debit',
             ],
             [
                 'name' => 'mulct_purchase',
                 'description' => 'Compra por arremate',
-                'operation' => 'debit'
+                'operation' => 'debit',
             ],
             [
                 'name' => 'negotiation_sale',
                 'description' => 'Venda por negociação',
-                'operation' => 'credit'
+                'operation' => 'credit',
             ],
             [
                 'name' => 'mulct_sale',
                 'description' => 'Venda por arremate',
-                'operation' => 'credit'
+                'operation' => 'credit',
             ],
             [
                 'name' => 'initial_credit',
                 'description' => 'Crédito inicial',
-                'operation' => 'credit'
+                'operation' => 'credit',
             ],
-        ]);
+        ];
+
+        foreach ($types as $type) {
+            TransactionType::firstOrCreate(['name' => $type['name']], $type);
+        }
     }
 }
