@@ -26,7 +26,6 @@ class IndexSquadRequest extends FormRequest
             'per_page' => ['nullable', 'integer', 'min:1'],
             'page' => ['nullable', 'integer', 'min:1'],
             'search' => ['nullable', 'string', 'max:255'],
-            'season_id' => ['nullable', 'uuid', 'exists:seasons,id'],
             'user_id' => ['nullable', 'uuid', 'exists:users,id'],
             'league_id' => ['nullable', 'uuid', 'exists:leagues,id'],
         ];

@@ -30,7 +30,6 @@ class SquadResource extends JsonResource
                 'category' => $this->player_category !== null ? (string) $this->player_category : null,
                 'image_url' => $this->player_image_path ? Storage::disk('public')->url($this->player_image_path) : null,
             ],
-            'season_id' => $this->season_id,
             'acquisition_type' => $this->acquisition_type?->value,
             'salary' => (string) $this->salary,
             'passe' => (string) $this->passe,

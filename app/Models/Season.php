@@ -40,4 +40,19 @@ class Season extends Model
     {
         return $this->belongsTo(League::class);
     }
+
+    /**
+     * Temporada em andamento (não encerrada) de uma liga.
+     * Uma liga nunca tem mais de uma temporada aberta ao mesmo tempo.
+     */
+    public static function currentFor(?string $leagueId): ?self
+    {
+        if (! $leagueId) {
+            return null;
+        }
+
+        return static::where('league_id', $leagueId)
+            ->where('status', '!=', SeasonStatus::Closed->value)
+            ->first();
+    }
 }

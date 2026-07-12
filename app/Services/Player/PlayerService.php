@@ -2,12 +2,10 @@
 
 namespace App\Services\Player;
 
-use App\Enums\SeasonStatus;
 use App\Http\Resources\Player\PlayerCollection;
 use App\Http\Resources\Player\PlayerResource;
 use App\Models\LeagueCategoryPrice;
 use App\Models\Player;
-use App\Models\Season;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -72,7 +70,6 @@ class PlayerService
     private function baseQuery(): Builder
     {
         $leagueId = Auth::user()?->league_id;
-        $seasonId = $this->currentSeasonId($leagueId);
 
         $query = Player::query()
             ->select([
@@ -84,21 +81,9 @@ class PlayerService
         LeagueCategoryPrice::applyBestMatchJoin($query, leagueId: $leagueId);
 
         return $query
-            ->leftJoin('squads', function ($join) use ($leagueId, $seasonId): void {
+            ->leftJoin('squads', function ($join) use ($leagueId): void {
                 $join->on('squads.player_id', '=', 'players.id')
-                    ->where('squads.league_id', $leagueId)
-                    ->where('squads.season_id', $seasonId);
+                    ->where('squads.league_id', $leagueId);
             });
-    }
-
-    private function currentSeasonId(?string $leagueId): ?string
-    {
-        if (! $leagueId) {
-            return null;
-        }
-
-        return Season::where('league_id', $leagueId)
-            ->where('status', '!=', SeasonStatus::Closed->value)
-            ->value('id');
     }
 }

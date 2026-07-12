@@ -19,7 +19,6 @@ class Squad extends Model
         'league_id',
         'user_id',
         'player_id',
-        'season_id',
         'acquisition_type',
         'salary',
     ];
@@ -54,10 +53,5 @@ class Squad extends Model
     public function player(): BelongsTo
     {
         return $this->belongsTo(Player::class);
-    }
-
-    public function season(): BelongsTo
-    {
-        return $this->belongsTo(Season::class);
     }
 }

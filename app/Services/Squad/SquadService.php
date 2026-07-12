@@ -8,6 +8,7 @@ use App\Exceptions\ApiException;
 use App\Http\Resources\Squad\SquadCollection;
 use App\Http\Resources\Squad\SquadResource;
 use App\Models\LeagueCategoryPrice;
+use App\Models\Season;
 use App\Models\Squad;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -21,13 +22,11 @@ class SquadService
         $page = $data['page'] ?? 1;
         $perPage = $data['per_page'] ?? 10;
         $search = $data['search'] ?? null;
-        $seasonId = $data['season_id'] ?? null;
         $userId = $data['user_id'] ?? null;
         $leagueId = $actor->hasRole(UserType::SYSTEM_ADMIN->value) ? ($data['league_id'] ?? null) : null;
 
         $query = $this->baseQuery()
             ->when($search, fn (Builder $query) => $query->where('players.name', 'ILIKE', "%{$search}%"))
-            ->when($seasonId, fn (Builder $query) => $query->where('squads.season_id', $seasonId))
             ->when($userId, fn (Builder $query) => $query->where('squads.user_id', $userId))
             ->when($leagueId, fn (Builder $query) => $query->where('squads.league_id', $leagueId))
             ->orderBy('players.name');
@@ -47,7 +46,7 @@ class SquadService
     public function adjustSalary(array $data): SquadResource
     {
         return DB::transaction(function () use ($data): SquadResource {
-            $squad = Squad::with(['season', 'user'])->findOrFail($data['id']);
+            $squad = Squad::with('user')->findOrFail($data['id']);
             $actor = Auth::user();
 
             $isOwner = $squad->user_id === $actor->id;
@@ -57,7 +56,9 @@ class SquadService
                 throw new ApiException('Apenas o dono do elenco pode reajustar este salário.', 403);
             }
 
-            if ($squad->season->phase !== LeaguePhase::WindowOpening) {
+            $season = Season::currentFor($squad->league_id);
+
+            if ($season === null || $season->phase !== LeaguePhase::WindowOpening) {
                 throw new ApiException('O reajuste de salário só é permitido durante a Janela Inicial.', 409);
             }
 
@@ -66,7 +67,6 @@ class SquadService
             $otherSquadsTotal = Squad::query()
                 ->where('user_id', $squad->user_id)
                 ->where('league_id', $squad->league_id)
-                ->where('season_id', $squad->season_id)
                 ->where('id', '!=', $squad->id)
                 ->sum('salary');
 
