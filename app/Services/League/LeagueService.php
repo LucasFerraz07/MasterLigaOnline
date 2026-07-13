@@ -82,7 +82,7 @@ class LeagueService
                 LeagueCategoryPrice::create([
                     'league_id' => $league->id,
                     'category' => $category,
-                    'base_salary' => 0,
+                    'base_salary' => $category->defaultBaseSalary(),
                     'min_overall' => $category->defaultMinOverall(),
                 ]);
             }
@@ -108,11 +108,25 @@ class LeagueService
         });
     }
 
-    public function destroy(array $data): void
+    public function delete(array $data): void
     {
         $league = League::findOrFail($data['id']);
 
         $league->delete();
+    }
+
+    public function restore(array $data): void
+    {
+        $league = League::withTrashed()->findOrFail($data['id']);
+
+        $league->restore();
+    }
+
+    public function destroy(array $data): void
+    {
+        $league = League::withTrashed()->findOrFail($data['id']);
+
+        $league->forceDelete();
     }
 
     public function renewSubscription(array $data): LeagueResource

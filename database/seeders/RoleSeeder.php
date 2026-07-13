@@ -32,6 +32,8 @@ class RoleSeeder extends Seeder
             'league.create',
             'league.update',
             'league.delete',
+            'league.restore',
+            'league.force-delete',
             'user.view',
             'user.create',
             'user.update',

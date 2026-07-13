@@ -24,4 +24,19 @@ enum Category: string
             self::Black => 90,
         };
     }
+
+    /**
+     * Salário base padrão de cada categoria, usado ao criar uma nova liga.
+     * Cada liga pode sobrescrever esses valores em `league_category_prices.base_salary`.
+     */
+    public function defaultBaseSalary(): int
+    {
+        return match ($this) {
+            self::White => 0,
+            self::Bronze => 5000,
+            self::Silver => 10000,
+            self::Gold => 25000,
+            self::Black => 50000,
+        };
+    }
 }

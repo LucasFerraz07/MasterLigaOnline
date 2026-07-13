@@ -18,5 +18,13 @@ Route::middleware('auth.api', 'permission:league.update')->group(function () {
 });
 
 Route::middleware('auth.api', 'permission:league.delete')->group(function () {
-    Route::delete('/{id}', [League::class, 'destroy']);
+    Route::delete('/{id}', [League::class, 'delete']);
+});
+
+Route::middleware('auth.api', 'permission:league.restore')->group(function () {
+    Route::post('/{id}/restore', [League::class, 'restore']);
+});
+
+Route::middleware('auth.api', 'permission:league.force-delete')->group(function () {
+    Route::delete('/{id}/destroy', [League::class, 'destroy']);
 });
