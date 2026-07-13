@@ -2,9 +2,13 @@
 
 namespace App\Services\User;
 
+use App\Enums\TransactionOperation;
 use App\Enums\UserType;
+use App\Exceptions\ApiException;
 use App\Http\Resources\User\UserCollection;
 use App\Http\Resources\User\UserResource;
+use App\Models\FinancialTransaction;
+use App\Models\TransactionType;
 use App\Models\User;
 use App\Services\ClubIdentity\ClubIdentityService;
 use Illuminate\Support\Facades\Auth;
@@ -85,6 +89,47 @@ class UserService
             }
 
             return new UserResource($user);
+        });
+    }
+
+    public function adjustBalance(array $data): UserResource
+    {
+        return DB::transaction(function () use ($data): UserResource {
+            $actor = Auth::user();
+            $isSystemAdmin = $actor->hasRole(UserType::SYSTEM_ADMIN->value);
+
+            $targetUser = User::findOrFail($data['user_id']);
+
+            if (! $isSystemAdmin && $targetUser->league_id !== $actor->league_id) {
+                throw new ApiException('Você só pode ajustar o saldo de usuários da sua própria liga.', 403);
+            }
+
+            $operation = TransactionOperation::from($data['operation']);
+            $amount = (string) $data['amount'];
+
+            if ($operation === TransactionOperation::Debit && bccomp($amount, (string) $targetUser->balance, 2) === 1) {
+                throw new ApiException('O débito excede o saldo disponível do usuário.', 422);
+            }
+
+            $targetUser->balance = $operation === TransactionOperation::Credit
+                ? bcadd((string) $targetUser->balance, $amount, 2)
+                : bcsub((string) $targetUser->balance, $amount, 2);
+            $targetUser->save();
+
+            $transactionType = TransactionType::where(
+                'name',
+                $operation === TransactionOperation::Credit ? 'manual_credit' : 'manual_debit'
+            )->firstOrFail();
+
+            FinancialTransaction::create([
+                'league_id' => $targetUser->league_id,
+                'user_id' => $targetUser->id,
+                'transaction_type_id' => $transactionType->id,
+                'amount' => $amount,
+                'description' => $data['description'] ?? ($operation === TransactionOperation::Credit ? 'Crédito manual' : 'Débito manual'),
+            ]);
+
+            return new UserResource($targetUser->load('roles'));
         });
     }
 

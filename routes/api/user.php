@@ -12,6 +12,10 @@ Route::middleware('auth.api', 'permission:user.create')->group(function () {
     Route::post('/', [User::class, 'store']);
 });
 
+Route::middleware('auth.api', 'permission:user.balance')->group(function () {
+    Route::put('/ajustar-saldo', [User::class, 'adjustBalance']);
+});
+
 Route::middleware('auth.api', 'permission:user.update')->group(function () {
     Route::put('/{id}', [User::class, 'update']);
 });

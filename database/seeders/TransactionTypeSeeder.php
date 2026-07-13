@@ -43,6 +43,16 @@ class TransactionTypeSeeder extends Seeder
                 'description' => 'Crédito inicial',
                 'operation' => 'credit',
             ],
+            [
+                'name' => 'manual_credit',
+                'description' => 'Crédito manual (ajuste do dono da liga)',
+                'operation' => 'credit',
+            ],
+            [
+                'name' => 'manual_debit',
+                'description' => 'Débito manual (ajuste do dono da liga)',
+                'operation' => 'debit',
+            ],
         ];
 
         foreach ($types as $type) {

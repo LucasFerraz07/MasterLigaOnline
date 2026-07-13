@@ -50,6 +50,7 @@ class RoleSeeder extends Seeder
             'club-identity.update',
             'transfer.view',
             'financial-transaction.view',
+            'user.balance',
         ];
 
         foreach ($permissions as $permission) {
@@ -81,6 +82,11 @@ class RoleSeeder extends Seeder
             'club-identity.update',
             'transfer.view',
             'financial-transaction.view',
+            'user.balance',
+            'user.view',
+            'user.create',
+            'user.update',
+            'user.delete',
         ]);
 
         $coOwner->syncPermissions([
@@ -95,6 +101,10 @@ class RoleSeeder extends Seeder
             'club-identity.update',
             'transfer.view',
             'financial-transaction.view',
+            'user.view',
+            'user.create',
+            'user.update',
+            'user.delete',
         ]);
 
         $default->syncPermissions([
@@ -107,6 +117,8 @@ class RoleSeeder extends Seeder
             'club-identity.update',
             'transfer.view',
             'financial-transaction.view',
+            'user.view',
+            'user.update'
         ]);
     }
 }

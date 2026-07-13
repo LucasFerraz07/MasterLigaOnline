@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Builder\ReturnApi;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\User\AdjustBalanceUserRequest;
 use App\Http\Requests\User\DeleteUserRequest;
 use App\Http\Requests\User\IndexUserRequest;
 use App\Http\Requests\User\ShowUserRequest;
@@ -92,6 +93,22 @@ class User extends Controller
         try {
             $this->service->destroy($request->validated());
             return ReturnApi::success(null, 'Usuário deletado com sucesso.');
+        } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
+            return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
+        }
+    }
+
+    #[Endpoint(operationId: 'adjustBalanceUser', title: 'Adjust User Balance', description: '**operationId:** `adjustBalanceUser` — Credita ou debita um valor no saldo de um usuário da própria liga (ex.: crédito de ingresso na liga). Restrito ao dono da liga (`league_admin`). Em **200**, `data` segue o schema **UserResource**. Requer permissão: user.balance')]
+    public function adjustBalance(AdjustBalanceUserRequest $request): JsonResponse
+    {
+        try {
+            $data = $this->service->adjustBalance($request->validated());
+            return ReturnApi::success($data, 'Saldo ajustado com sucesso.');
         } catch (ApiException $e) {
             /**
              * @status 400
