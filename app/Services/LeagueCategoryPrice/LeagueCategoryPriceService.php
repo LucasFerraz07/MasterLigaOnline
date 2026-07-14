@@ -28,8 +28,8 @@ class LeagueCategoryPriceService
         $categoryPrice = LeagueCategoryPrice::findOrFail($data['id']);
 
         $categoryPrice->update([
-            'base_salary' => $data['base_salary'],
-            'min_overall' => $data['min_overall'],
+            'base_salary' => $data['base_salary'] ?? $categoryPrice->base_salary,
+            'min_overall' => $data['min_overall'] ?? $categoryPrice->min_overall,
         ]);
 
         return new LeagueCategoryPriceResource($categoryPrice);

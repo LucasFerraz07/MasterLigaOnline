@@ -34,8 +34,8 @@ class UpdateLeagueCategoryPriceRequest extends FormRequest
     {
         return [
             'id' => ['required', 'uuid', 'exists:league_category_prices,id'],
-            'base_salary' => ['required', 'numeric', 'min:0'],
-            'min_overall' => ['required', 'integer', 'min:0', 'max:99'],
+            'base_salary' => ['sometimes', 'nullable', 'numeric', 'min:0'],
+            'min_overall' => ['sometimes', 'nullable', 'integer', 'min:0', 'max:99'],
         ];
     }
 

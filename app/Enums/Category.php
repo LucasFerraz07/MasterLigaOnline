@@ -17,11 +17,11 @@ enum Category: string
     public function defaultMinOverall(): int
     {
         return match ($this) {
-            self::White => 40,
-            self::Bronze => 60,
-            self::Silver => 70,
-            self::Gold => 80,
-            self::Black => 90,
+            self::White => 0,
+            self::Bronze => 70,
+            self::Silver => 80,
+            self::Gold => 90,
+            self::Black => 98,
         };
     }
 

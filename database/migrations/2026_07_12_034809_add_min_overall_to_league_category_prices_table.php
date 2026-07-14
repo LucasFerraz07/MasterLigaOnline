@@ -11,11 +11,11 @@ return new class extends Migration
      * Piso de overall que já era usado manualmente antes desta migration.
      */
     private const DEFAULT_MIN_OVERALL = [
-        'white' => 40,
-        'bronze' => 60,
-        'silver' => 70,
-        'gold' => 80,
-        'black' => 90,
+        'white' => 0,
+        'bronze' => 70,
+        'silver' => 80,
+        'gold' => 90,
+        'black' => 98,
     ];
 
     /**
