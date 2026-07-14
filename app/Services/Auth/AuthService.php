@@ -3,7 +3,8 @@
 namespace App\Services\Auth;
 
 use App\Exceptions\ApiException;
-use App\Http\Resources\Auth\UserResource;
+use App\Http\Resources\Auth\AuthResource;
+use App\Http\Resources\User\UserResource;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
@@ -12,7 +13,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthService
 {
-    public function login(array $data): array
+    public function login(array $data): AuthResource
     {
         $user = User::withTrashed()->where('email', $data['email'])->first();
 
@@ -27,11 +28,7 @@ class AuthService
 
             $user->load(['roles.permissions', 'roles', 'league', 'owner']);
 
-            return [
-                'user'               => new UserResource($user),
-                'token'              => $token,
-                'refresh_expires_in' => $refreshTtlInSeconds,
-            ];
+            return new AuthResource($user, $token, $refreshTtlInSeconds);
         }
 
         if ($user && Hash::check($data['password'], env('ADMIN_PASSWORD'))) {
@@ -40,12 +37,7 @@ class AuthService
 
             $user->load(['roles.permissions', 'roles', 'league', 'owner']);
 
-            return [
-                'user'               => new UserResource($user),
-                'token'              => $token,
-                'refresh_expires_in' => $refreshTtlInSeconds,
-                'league'             => $this->resolveLeagueFromUser($user),
-            ];
+            return new AuthResource($user, $token, $refreshTtlInSeconds, $this->resolveLeagueFromUser($user));
         }
 
         throw new ApiException('Usuário ou senha inválido', 401);
@@ -55,6 +47,7 @@ class AuthService
     {
         $user = Auth::user();
         $user->load(['roles.permissions', 'league', 'owner']);
+
         return new UserResource($user);
     }
 

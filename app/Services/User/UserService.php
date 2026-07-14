@@ -28,7 +28,7 @@ class UserService
         $trashed = $data['with_trashed'] ?? null;
 
         $query = User::query()
-            ->with('roles')
+            ->with('roles.permissions')
             ->when($trashed, fn ($query) => $query->withTrashed())
             ->when($search, function ($query) use ($search): void {
                 $query->where('username', 'ILIKE', "%{$search}%");
@@ -42,7 +42,7 @@ class UserService
 
     public function show(array $data): UserResource
     {
-        $user = User::with('roles')->findOrFail($data['id']);
+        $user = User::with('roles.permissions')->findOrFail($data['id']);
 
         return new UserResource($user);
     }
@@ -129,7 +129,7 @@ class UserService
                 'description' => $data['description'] ?? ($operation === TransactionOperation::Credit ? 'Crédito manual' : 'Débito manual'),
             ]);
 
-            return new UserResource($targetUser->load('roles'));
+            return new UserResource($targetUser->load('roles.permissions'));
         });
     }
 

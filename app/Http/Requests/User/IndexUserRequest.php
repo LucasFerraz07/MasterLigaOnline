@@ -16,6 +16,18 @@ class IndexUserRequest extends FormRequest
     }
 
     /**
+     * Normaliza with_trashed vindo da query string ("true"/"false") para boolean.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('with_trashed')) {
+            $this->merge([
+                'with_trashed' => filter_var($this->input('with_trashed'), FILTER_VALIDATE_BOOLEAN),
+            ]);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, ValidationRule|array<mixed>|string>

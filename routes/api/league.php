@@ -22,7 +22,7 @@ Route::middleware('auth.api', 'permission:league.delete')->group(function () {
 });
 
 Route::middleware('auth.api', 'permission:league.restore')->group(function () {
-    Route::post('/{id}/restore', [League::class, 'restore']);
+    Route::patch('/{id}/restore', [League::class, 'restore']);
 });
 
 Route::middleware('auth.api', 'permission:league.force-delete')->group(function () {
