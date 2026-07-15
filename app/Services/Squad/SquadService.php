@@ -16,6 +16,7 @@ use App\Models\Season;
 use App\Models\Squad;
 use App\Models\TransactionType;
 use App\Models\Transfer;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -133,6 +134,8 @@ class SquadService
             $salary = (string) $leagueCategoryPrice->base_salary;
             $passe = bcmul($salary, '10', 2);
 
+            $actor = User::where('id', $actor->id)->lockForUpdate()->firstOrFail();
+
             if (bccomp($passe, (string) $actor->balance, 2) === 1) {
                 throw new ApiException('Saldo insuficiente para comprar este jogador.', 422);
             }
@@ -143,6 +146,7 @@ class SquadService
                 'player_id' => $player->id,
                 'acquisition_type' => AcquisitionType::Initial,
                 'salary' => $salary,
+                'acquired_at' => now(),
             ]);
 
             $actor->update(['balance' => bcsub((string) $actor->balance, $passe, 2)]);

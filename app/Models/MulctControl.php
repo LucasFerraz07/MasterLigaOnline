@@ -2,44 +2,34 @@
 
 namespace App\Models;
 
-use App\Enums\AcquisitionType;
 use App\Models\Concerns\Tenantable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * @mixin IdeHelperSquad
+ * @mixin IdeHelperMulctControl
  */
-class Squad extends Model
+class MulctControl extends Model
 {
     use HasUuids, Tenantable;
+
+    protected $table = 'mulct_control';
 
     protected $fillable = [
         'league_id',
         'user_id',
-        'player_id',
-        'acquisition_type',
-        'salary',
-        'acquired_at',
-    ];
-
-    protected $appends = [
-        'passe',
+        'season_id',
+        'buyouts_purchased',
+        'buyouts_lost',
     ];
 
     protected function casts(): array
     {
         return [
-            'salary' => 'decimal:2',
-            'acquisition_type' => AcquisitionType::class,
-            'acquired_at' => 'datetime',
+            'buyouts_purchased' => 'integer',
+            'buyouts_lost' => 'integer',
         ];
-    }
-
-    public function getPasseAttribute(): string
-    {
-        return bcmul((string) $this->salary, '10', 2);
     }
 
     public function league(): BelongsTo
@@ -52,8 +42,8 @@ class Squad extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function player(): BelongsTo
+    public function season(): BelongsTo
     {
-        return $this->belongsTo(Player::class);
+        return $this->belongsTo(Season::class);
     }
 }

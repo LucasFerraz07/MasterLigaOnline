@@ -130,8 +130,8 @@ class TransferBidService
 
             $season = $this->currentOpenSeason($bid->league_id);
 
-            $proposer = User::findOrFail($bid->proposer_id);
-            $receiver = User::findOrFail($bid->receiver_id);
+            $proposer = User::where('id', $bid->proposer_id)->lockForUpdate()->firstOrFail();
+            $receiver = User::where('id', $bid->receiver_id)->lockForUpdate()->firstOrFail();
 
             $proposerPlayerIds = $this->playerIdsFor($bid, TransferSide::Proposer);
             $receiverPlayerIds = $this->playerIdsFor($bid, TransferSide::Receiver);
@@ -281,7 +281,7 @@ class TransferBidService
             $squad = $squads->get($playerId);
             $passe = $squad->passe;
 
-            $squad->update(['user_id' => $to->id]);
+            $squad->update(['user_id' => $to->id, 'acquired_at' => now()]);
 
             Transfer::create([
                 'league_id' => $bid->league_id,

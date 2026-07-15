@@ -5,6 +5,6 @@ namespace App\Enums;
 enum TransferType: string
 {
     case Negotiation = 'negotiation';
-    case Mulct = 'Mulct';
+    case Mulct = 'mulct';
     case Free = 'free';
 }
