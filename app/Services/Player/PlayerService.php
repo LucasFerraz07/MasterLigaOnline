@@ -84,6 +84,9 @@ class PlayerService
             ->leftJoin('squads', function ($join) use ($leagueId): void {
                 $join->on('squads.player_id', '=', 'players.id')
                     ->where('squads.league_id', $leagueId);
-            });
+            })
+            ->with(['squads' => function ($query) use ($leagueId): void {
+                $query->where('league_id', $leagueId)->with('user.clubIdentity.club');
+            }]);
     }
 }

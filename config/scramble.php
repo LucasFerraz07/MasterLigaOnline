@@ -24,4 +24,32 @@ return [
             'middleware' => ['auth.api'],
         ],
     ],
+
+    /*
+     * Renderer options are copied from the package defaults so this override only changes
+     * `theme` — Laravel's config merge replaces this whole key wholesale, not per sub-key,
+     * so a partial array here would silently drop the other Stoplight Elements options.
+     */
+    'renderers' => [
+        'elements' => [
+            'view' => 'scramble::docs',
+            'theme' => 'dark',
+            'hideTryIt' => false,
+            'hideSchemas' => false,
+            'logo' => '',
+            'tryItCredentialsPolicy' => 'include',
+            'layout' => 'responsive',
+            'router' => 'hash',
+        ],
+        'scalar' => [
+            'view' => 'scramble::scalar',
+            'cdn' => 'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
+            'theme' => 'laravel',
+            'proxyUrl' => 'https://proxy.scalar.com',
+            'darkMode' => true,
+            'showDeveloperTools' => 'never',
+            'agent' => ['disabled' => true],
+            'credentials' => 'include',
+        ],
+    ],
 ];

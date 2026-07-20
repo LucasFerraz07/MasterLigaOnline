@@ -18,7 +18,7 @@ class SubscriptionService
 
         $query = Subscription::query()->orderByDesc('created_at');
         
-        if (! empty($data['search'])) {
+        if (!empty($data['search'])) {
             $query->where('name', 'ilike', '%' . $data['search'] . '%');
         }
 

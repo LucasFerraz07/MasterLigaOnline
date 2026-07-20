@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @mixin IdeHelperPlayer
@@ -25,5 +26,10 @@ class Player extends Model
         return [
             'overall' => 'integer',
         ];
+    }
+
+    public function squads(): HasMany
+    {
+        return $this->hasMany(Squad::class);
     }
 }

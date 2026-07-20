@@ -6,6 +6,8 @@ use App\Builder\ReturnApi;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Resources\Auth\AuthResource;
+use App\Http\Resources\User\UserResource;
 use App\Services\Auth\AuthService;
 use Dedoc\Scramble\Attributes\Endpoint;
 use Dedoc\Scramble\Attributes\Group;
@@ -23,6 +25,12 @@ class Auth extends Controller
     {
         try {
             $data = $this->service->login($request->validated());
+
+            /**
+             * @status 200
+             *
+             * @body array{error: false, message: string, data: AuthResource}
+             */
             return ReturnApi::success($data, 'Login realizado com sucesso.');
         } catch (ApiException $e) {
             /**
@@ -39,6 +47,12 @@ class Auth extends Controller
     {
         try {
             $resource = $this->service->me();
+
+            /**
+             * @status 200
+             *
+             * @body array{error: false, message: string, data: UserResource}
+             */
             return ReturnApi::success($resource, 'Usuário autenticado.');
         } catch (ApiException $e) {
             /**
@@ -55,6 +69,12 @@ class Auth extends Controller
     {
         try {
             $this->service->logout();
+
+            /**
+             * @status 200
+             *
+             * @body array{error: false, message: string, data: null}
+             */
             return ReturnApi::success(null, 'Logout realizado com sucesso.');
         } catch (ApiException $e) {
             /**
@@ -66,11 +86,17 @@ class Auth extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'refreshAuth', title: 'Refresh Auth', description: '**operationId:** `refreshAuth` — Renova o token JWT do usuário autenticado. Em **200**, `data` é uma string com o novo token. Requer autenticação.')]
+    #[Endpoint(operationId: 'refreshAuth', title: 'Refresh Auth', description: '**operationId:** `refreshAuth` — Renova o token JWT do usuário autenticado. Em **200**, `data` contém `token` e `refresh_expires_in`. Requer autenticação.')]
     public function refresh(): JsonResponse
     {
         try {
             $token = $this->service->refreshToken();
+
+            /**
+             * @status 200
+             *
+             * @body array{error: false, message: string, data: array{token: string, refresh_expires_in: int}}
+             */
             return ReturnApi::success($token, 'Token renovado com sucesso.');
         } catch (ApiException $e) {
             /**

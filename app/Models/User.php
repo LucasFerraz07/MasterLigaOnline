@@ -71,4 +71,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(Owner::class);
     }
+
+    public function clubIdentity(): HasOne
+    {
+        return $this->hasOne(ClubIdentity::class);
+    }
 }
