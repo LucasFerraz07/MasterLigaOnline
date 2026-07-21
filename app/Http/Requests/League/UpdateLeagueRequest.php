@@ -35,6 +35,11 @@ class UpdateLeagueRequest extends FormRequest
         return [
             'id' => ['required', 'uuid', 'exists:leagues,id'],
             'name' => ['nullable', 'string', 'max:255'],
+            'player_limit' => ['nullable', 'integer', 'min:0', 'max:255'],
+            'silver_limit' => ['nullable', 'integer', 'min:0', 'max:255'],
+            'golden_limit' => ['nullable', 'integer', 'min:0', 'max:255'],
+            'black_limit' => ['nullable', 'integer', 'min:0', 'max:255'],
+            'mulct_contract_limit' => ['nullable', 'integer', 'min:0', 'max:255'],
         ];
     }
 
@@ -47,6 +52,11 @@ class UpdateLeagueRequest extends FormRequest
     {
         return [
             'name' => 'nome da liga',
+            'player_limit' => 'limite de jogadores',
+            'silver_limit' => 'limite de jogadores prata',
+            'golden_limit' => 'limite de jogadores ouro',
+            'black_limit' => 'limite de jogadores black',
+            'mulct_contract_limit' => 'limite de contratos de multa',
         ];
     }
 }

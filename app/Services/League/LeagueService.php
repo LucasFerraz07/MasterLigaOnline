@@ -100,6 +100,11 @@ class LeagueService
 
             $league->update([
                 'name' => $data['name'] ?? $league->name,
+                'player_limit' => $data['player_limit'] ?? $league->player_limit,
+                'silver_limit' => $data['silver_limit'] ?? $league->silver_limit,
+                'golden_limit' => $data['golden_limit'] ?? $league->golden_limit,
+                'black_limit' => $data['black_limit'] ?? $league->black_limit,
+                'mulct_contract_limit' => $data['mulct_contract_limit'] ?? $league->mulct_contract_limit,
             ]);
 
             $league->load(['owners.user', 'subscription']);

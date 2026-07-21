@@ -37,7 +37,7 @@ class PlayerService
             ->when($maxSalary, fn (Builder $query) => $query->where(DB::raw('COALESCE(squads.salary, league_category_prices.base_salary)'), '<=', $maxSalary))
             ->when($minPasse, fn (Builder $query) => $query->where(DB::raw('COALESCE(squads.salary, league_category_prices.base_salary)'), '>=', bcdiv((string) $minPasse, '10', 2)))
             ->when($maxPasse, fn (Builder $query) => $query->where(DB::raw('COALESCE(squads.salary, league_category_prices.base_salary)'), '<=', bcdiv((string) $maxPasse, '10', 2)))
-            ->orderBy('players.name');
+            ->orderByDesc('players.overall');
 
         $paginator = $query->paginate($perPage, ['*'], 'page', $page);
 
