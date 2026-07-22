@@ -32,7 +32,6 @@ class StoreLeagueRequest extends FormRequest
             'owner.password' => ['required', 'string', 'min:8'],
             'owner.phone' => ['required', 'string', 'max:15'],
             'owner.full_name' => ['required', 'string', 'max:255'],
-            'owner.cpf' => ['required', 'string', 'max:14'],
         ];
     }
 
@@ -48,7 +47,6 @@ class StoreLeagueRequest extends FormRequest
             'owner.password' => 'senha do proprietário',
             'owner.phone' => 'telefone do proprietário',
             'owner.full_name' => 'nome completo do proprietário',
-            'owner.cpf' => 'CPF do proprietário',
         ];
     }
 }

@@ -18,7 +18,6 @@ class OwnerResource extends JsonResource
         return [
             'id'         => $this->id,
             'full_name'  => (string) $this->full_name,
-            'cpf'        => (string) $this->cpf,
             'user'       => UserResource::make($this->whenLoaded('user')),
             'created_at' => (string) $this->created_at,
             'updated_at' => (string) $this->updated_at,

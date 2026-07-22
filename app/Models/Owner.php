@@ -17,7 +17,6 @@ class Owner extends Model
 
     protected $fillable = [
         'full_name',
-        'cpf',
         'league_id',
         'user_id',
     ];
