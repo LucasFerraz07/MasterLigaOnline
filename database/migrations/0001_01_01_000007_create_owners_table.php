@@ -11,7 +11,6 @@ return new class extends Migration
         Schema::create('owners', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('full_name', 150);
-            $table->string('cpf', 14)->unique();
             $table->foreignUuid('league_id')->unique()->constrained('leagues')->cascadeOnDelete();
             $table->foreignUuid('user_id')->unique()->constrained('users');
             $table->softDeletes();

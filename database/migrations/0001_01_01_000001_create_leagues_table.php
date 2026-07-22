@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignUuid('subscription_id')->constrained('subscriptions');
             $table->date('subscription_start');
             $table->date('subscription_end');
+            $table->timestamp('deactivated_at')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
