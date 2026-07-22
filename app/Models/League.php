@@ -26,6 +26,7 @@ class League extends Model
         'subscription_id',
         'subscription_start',
         'subscription_end',
+        'deactivated_at',
     ];
 
     protected $appends = [
@@ -37,6 +38,7 @@ class League extends Model
         return [
             'subscription_start' => 'date',
             'subscription_end' => 'date',
+            'deactivated_at' => 'datetime',
             'silver_limit' => 'integer',
             'golden_limit' => 'integer',
             'black_limit' => 'integer',
@@ -47,7 +49,9 @@ class League extends Model
 
     public function getIsActiveAttribute(): bool
     {
-        return $this->deleted_at === null && $this->subscription_end->isFuture();
+        return $this->deleted_at === null
+            && $this->deactivated_at === null
+            && $this->subscription_end->isFuture();
     }
 
     public function subscription(): BelongsTo
@@ -58,6 +62,16 @@ class League extends Model
     public function owners(): HasOne
     {
         return $this->hasOne(Owner::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function subscriptionPeriods(): HasMany
+    {
+        return $this->hasMany(SubscriptionPeriod::class);
     }
 
     public function categoryPrices(): HasMany
