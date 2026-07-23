@@ -2,6 +2,7 @@
 
 namespace App\Services\Auth;
 
+use App\Enums\UserType;
 use App\Exceptions\ApiException;
 use App\Http\Resources\Auth\AuthResource;
 use App\Http\Resources\User\UserResource;
@@ -20,6 +21,7 @@ class AuthService
             'email' => $data['email'],
             'password' => $data['password'],
             'phone' => $data['phone'],
+            'user_type' => UserType::USER,
         ]);
 
         $refreshTtlInSeconds = Config::get('jwt.refresh_ttl') * 60;
