@@ -63,29 +63,33 @@ class PaymentService
     /**
      * Verifica a autenticidade do webhook recebido.
      *
-     * ATENÇÃO: o header/algoritmo abaixo é a melhor suposição a partir da
-     * documentação pública da Abacate Pay, que se mostrou inconsistente sobre
-     * esse ponto entre páginas diferentes. Antes de confiar nisso em produção,
-     * registrar um webhook real em sandbox, disparar `/transparents/simulate-payment`
-     * e confirmar contra o header/algoritmo efetivamente recebido.
+     * Confirmado em teste real de sandbox (2026-07-23): a Abacate Pay manda o
+     * secret em texto puro no header `X-Webhook-Secret` (também presente em
+     * `payload.webhookSecret`), não uma assinatura HMAC. Existe também um header
+     * `X-Webhook-Signature`, mas não foi possível confirmar o algoritmo exato
+     * de cálculo a partir do payload capturado — não implementado por ora.
+     *
+     * ATENÇÃO: o teste foi feito com `devMode: true`. Vale confirmar que o
+     * header `X-Webhook-Secret` também é enviado em produção antes de contar
+     * apenas com ele.
      */
     public function verifyWebhookSignature(Request $request): bool
     {
         $secret = config('services.abacate_pay.webhook_secret');
-        $signature = $request->header('X-Webhook-Signature');
+        $received = $request->header('X-Webhook-Secret');
 
-        if (! $secret || ! $signature) {
+        if (! $secret || ! $received) {
             return false;
         }
 
-        $expected = base64_encode(hash_hmac('sha256', $request->getContent(), $secret, true));
-
-        return hash_equals($expected, $signature);
+        return hash_equals((string) $secret, (string) $received);
     }
 
     public function handleWebhookEvent(string $event, array $payload): void
     {
-        $externalId = $payload['data']['id'] ?? null;
+        // Confirmado em teste real de sandbox: o id da transação vem em
+        // data.transparent.id (não data.id) para eventos transparent.*.
+        $externalId = $payload['data']['transparent']['id'] ?? null;
 
         if (! $externalId) {
             return;
