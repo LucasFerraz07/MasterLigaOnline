@@ -20,7 +20,7 @@ Não existe redirecionamento para fora do seu site em nenhum momento — é Chec
 
 ## Rotas
 
-Todas (exceto `register`/`login`) exigem `Authorization: Bearer <token>` obtido no registro/login.
+Todas (exceto `register`/`login`/`subscription/catalog`) exigem `Authorization: Bearer <token>` obtido no registro/login.
 
 ### `POST /api/auth/register`
 
@@ -59,7 +59,7 @@ Retorna o `user` autenticado (mesmo shape de `data.user` acima, mas sem envelope
 
 ### `GET /api/subscription/catalog`
 
-Lista os planos disponíveis (paginado).
+**Rota pública, sem autenticação** — pode ser chamada direto da landing page antes do usuário se cadastrar/logar. Lista os planos disponíveis (paginado).
 
 **Response `200`:**
 ```json

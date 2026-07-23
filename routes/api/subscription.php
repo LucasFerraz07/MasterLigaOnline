@@ -3,9 +3,7 @@
 use App\Http\Controllers\Subscription\Subscription;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth.api')->group(function () {
-    Route::get('/catalog', [Subscription::class, 'catalog']);
-});
+Route::get('/catalog', [Subscription::class, 'catalog']);
 
 Route::middleware('auth.api', 'permission:subscription.view')->group(function () {
     Route::get('/', [Subscription::class, 'index']);

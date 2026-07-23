@@ -21,7 +21,7 @@ class Subscription extends Controller
         private readonly SubscriptionService $service
     ) {}
 
-    #[Endpoint(operationId: 'catalogSubscription', title: 'Catalog Subscription', description: '**operationId:** `catalogSubscription` — Lista os planos disponíveis para contratação. Em **200**, `data` segue o schema **SubscriptionCollection** (paginado). Requer apenas autenticação (sem permissão específica) — usado pela tela de escolha de plano antes do pagamento.')]
+    #[Endpoint(operationId: 'catalogSubscription', title: 'Catalog Subscription', description: '**operationId:** `catalogSubscription` — Lista os planos disponíveis para contratação. Em **200**, `data` segue o schema **SubscriptionCollection** (paginado). Rota pública, sem autenticação — usada pela landing page antes do cadastro/login.')]
     public function catalog(IndexSubscriptionRequest $request): JsonResponse
     {
         try {
