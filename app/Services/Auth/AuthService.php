@@ -13,6 +13,23 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthService
 {
+    public function register(array $data): AuthResource
+    {
+        $user = User::create([
+            'username' => $data['username'],
+            'email' => $data['email'],
+            'password' => $data['password'],
+            'phone' => $data['phone'],
+        ]);
+
+        $refreshTtlInSeconds = Config::get('jwt.refresh_ttl') * 60;
+        $token = JWTAuth::fromUser($user);
+
+        $user->load(['roles.permissions', 'roles', 'league', 'owner']);
+
+        return new AuthResource($user, $token, $refreshTtlInSeconds);
+    }
+
     public function login(array $data): AuthResource
     {
         $user = User::withTrashed()->where('email', $data['email'])->first();

@@ -6,6 +6,7 @@ use App\Builder\ReturnApi;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\Auth\AuthResource;
 use App\Http\Resources\User\UserResource;
 use App\Services\Auth\AuthService;
@@ -19,6 +20,28 @@ class Auth extends Controller
     public function __construct(
         private readonly AuthService $service
     ) {}
+
+    #[Endpoint(operationId: 'registerAuth', title: 'Register Auth', description: '**operationId:** `registerAuth` — Cadastra um novo usuário (sem liga) e retorna o token JWT. Em **200**, `data` contém `user` (**UserResource**), `token` e `refresh_expires_in`. Não requer autenticação.')]
+    public function register(RegisterRequest $request): JsonResponse
+    {
+        try {
+            $data = $this->service->register($request->validated());
+
+            /**
+             * @status 200
+             *
+             * @body array{error: false, message: string, data: AuthResource}
+             */
+            return ReturnApi::success($data, 'Cadastro realizado com sucesso.');
+        } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
+            return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
+        }
+    }
 
     #[Endpoint(operationId: 'loginAuth', title: 'Login Auth', description: '**operationId:** `loginAuth` — Autentica o usuário e retorna o token JWT. Em **200**, `data` contém `user` (**UserResource**), `token`, `refresh_expires_in` e, opcionalmente, `league`. Não requer autenticação.')]
     public function login(LoginRequest $request): JsonResponse
