@@ -19,7 +19,7 @@ Fluxo completo testado duas vezes ponta a ponta contra o sandbox real (não só 
 
 ## Pendências
 
-- **Sem endpoint pra consultar o status de um pagamento específico.** Hoje só existe `POST /payment` (cria a cobrança). O front não tem como saber quando um pagamento foi confirmado a não ser fazendo polling em `GET /auth/me` e checando se `league_id` deixou de ser `null` — funciona, mas é indireto (não diferencia "ainda pendente" de "expirado" de "falhou", por exemplo). Decisão em aberto: criar `GET /payment/{id}` (ou algo equivalente) antes do front construir a tela de "aguardando confirmação do Pix".
+- ~~Sem endpoint pra consultar o status de um pagamento específico~~ — **resolvido nesta sessão:** `GET /payment/{id}` (`PaymentService::show`), com a mesma checagem de dono usada em `FinancialTransactionService::show` (só o próprio comprador ou `system_admin`). `PaymentResource` agora também expõe `league_id` — é o sinal que o front usa pra saber quando redirecionar pro dashboard (fica `null` até o webhook provisionar a liga). Testado: dono recebe 200, outro usuário autenticado recebe 403.
 
 - **Verificação do webhook só foi confirmada com `devMode: true` (sandbox).** Não sabemos com certeza se o header `X-Webhook-Secret` se comporta igual com uma chave de API de produção — a Abacate Pay também manda um header `X-Webhook-Signature` (aparenta ser HMAC) que não usamos porque não foi possível confirmar o algoritmo exato a partir do payload capturado. Vale repetir o teste com credenciais de produção antes de operar com dinheiro real.
 
