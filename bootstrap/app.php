@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureLeagueSubscriptionActive;
 use App\Http\Middleware\JwtMiddleware;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -35,6 +36,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission'  => RoleOrPermissionMiddleware::class,
             'league.active'       => EnsureLeagueSubscriptionActive::class,
         ]);
+    })
+    ->withSchedule(function (Schedule $schedule): void {
+        $schedule->command('subscriptions:expire')->daily();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
