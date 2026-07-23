@@ -17,6 +17,7 @@ class PaymentResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'external_id' => $this->external_id,
             'status' => $this->status?->value,
             'months' => (int) $this->months,
             'amount' => (string) $this->amount,
