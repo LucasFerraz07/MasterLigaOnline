@@ -11,6 +11,7 @@ use App\Models\LeagueCategoryPrice;
 use App\Models\Owner;
 use App\Models\User;
 use App\Services\ClubIdentity\ClubIdentityService;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class LeagueService
@@ -49,31 +50,47 @@ class LeagueService
     public function store(array $data): LeagueResource
     {
         return DB::transaction(function () use ($data): LeagueResource {
-
-            $subscriptionEnd = $data['subscription_duration'] ? now()->addMonths($data['subscription_duration']) : null;
-            $league = League::create([
-                'name' => $data['name'],
-                'subscription_id' => $data['subscription_id'] ?? null,
-                'subscription_start' => now(),
-                'subscription_end' => $subscriptionEnd,
-            ]);
-
             $user = User::create([
                 'username' => $data['owner']['username'],
                 'email' => $data['owner']['email'],
                 'password' => $data['owner']['password'],
                 'phone' => $data['owner']['phone'],
-                'league_id' => $league->id,
                 'user_type' => UserType::LEAGUE_ADMIN,
             ]);
 
+            $league = $this->provisionLeagueForUser($user, $data);
+
+            $league->load(['owners.user', 'subscription']);
+
+            return new LeagueResource($league);
+        });
+    }
+
+    /**
+     * Cria a League (com Owner, preços de categoria e clube atribuído) para um
+     * User já existente e a promove a league_admin. Usado tanto pelo cadastro
+     * administrativo (store()) quanto pela confirmação de pagamento (webhook).
+     */
+    public function provisionLeagueForUser(User $user, array $data): League
+    {
+        return DB::transaction(function () use ($user, $data): League {
+            $league = League::create([
+                'name' => $data['name'],
+                'subscription_id' => $data['subscription_id'] ?? null,
+                'subscription_start' => now(),
+                'subscription_end' => $this->calculateSubscriptionEnd($data['subscription_duration'] ?? null),
+            ]);
+
+            $user->update([
+                'league_id' => $league->id,
+                'user_type' => UserType::LEAGUE_ADMIN,
+            ]);
             $user->assignRole(UserType::LEAGUE_ADMIN->value);
 
             $this->clubIdentityService->assignRandomClub($league->id, $user->id);
 
             Owner::create([
                 'full_name' => $data['owner']['full_name'],
-                'cpf' => $data['owner']['cpf'],
                 'league_id' => $league->id,
                 'user_id' => $user->id,
             ]);
@@ -87,9 +104,7 @@ class LeagueService
                 ]);
             }
 
-            $league->load(['owners.user', 'subscription']);
-
-            return new LeagueResource($league);
+            return $league;
         });
     }
 
@@ -138,15 +153,20 @@ class LeagueService
     {
         return DB::transaction(function () use ($data): LeagueResource {
             $league = League::findOrFail($data['id']);
-            $renewData = [
+
+            $league->update([
                 'subscription_id' => $data['subscription_id'] ?? $league->subscription_id,
                 'subscription_start' => now(),
-                'subscription_duration' => $data['subscription_duration'],
-            ];
-
-            $league->update($renewData);
+                'subscription_end' => $this->calculateSubscriptionEnd($data['subscription_duration']),
+                'deactivated_at' => null,
+            ]);
 
             return new LeagueResource($league);
         });
+    }
+
+    private function calculateSubscriptionEnd(?int $months): ?Carbon
+    {
+        return $months ? now()->addMonths($months) : null;
     }
 }
