@@ -17,3 +17,4 @@ Route::prefix('transfer')->group(base_path('routes/api/transfer.php'));
 Route::prefix('transfer-bid')->group(base_path('routes/api/transfer-bid.php'));
 Route::prefix('financial-transaction')->group(base_path('routes/api/financial-transaction.php'));
 Route::prefix('mulct')->group(base_path('routes/api/mulct.php'));
+Route::prefix('payment')->group(base_path('routes/api/payment.php'));
