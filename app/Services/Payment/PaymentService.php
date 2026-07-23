@@ -4,6 +4,7 @@ namespace App\Services\Payment;
 
 use App\Enums\PaymentStatus;
 use App\Enums\SubscriptionPeriodStatus;
+use App\Enums\UserType;
 use App\Exceptions\ApiException;
 use App\Http\Resources\Payment\PaymentResource;
 use App\Models\Payment;
@@ -58,6 +59,20 @@ class PaymentService
 
             return new PaymentResource($payment);
         });
+    }
+
+    public function show(array $data): PaymentResource
+    {
+        $actor = Auth::user();
+        $isSystemAdmin = $actor->hasRole(UserType::SYSTEM_ADMIN->value);
+
+        $payment = Payment::with('subscription')->findOrFail($data['id']);
+
+        if (! $isSystemAdmin && $payment->user_id !== $actor->id) {
+            throw new ApiException('Você só pode visualizar seus próprios pagamentos.', 403);
+        }
+
+        return new PaymentResource($payment);
     }
 
     /**

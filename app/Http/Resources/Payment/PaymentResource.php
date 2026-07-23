@@ -21,6 +21,7 @@ class PaymentResource extends JsonResource
             'months' => (int) $this->months,
             'amount' => (string) $this->amount,
             'league_name' => (string) $this->league_name,
+            'league_id' => $this->league_id,
             'pix_qr_code' => $this->pix_qr_code,
             'pix_br_code' => $this->pix_br_code,
             'expires_at' => $this->expires_at?->toISOString(),

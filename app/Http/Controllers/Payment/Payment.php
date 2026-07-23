@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Payment;
 use App\Builder\ReturnApi;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Payment\ShowPaymentRequest;
 use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Services\Payment\PaymentService;
 use Dedoc\Scramble\Attributes\Endpoint;
@@ -30,6 +31,28 @@ class Payment extends Controller
              * @body array{error: false, message: string, data: PaymentResource}
              */
             return ReturnApi::success($data, 'Cobrança Pix gerada com sucesso.');
+        } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
+            return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
+        }
+    }
+
+    #[Endpoint(operationId: 'showPayment', title: 'Show Payment', description: '**operationId:** `showPayment` — Consulta o status de um pagamento (uso típico: polling na tela de aguardando confirmação do Pix). Em **200**, `data` segue o schema **PaymentResource**. Requer apenas autenticação; só o próprio comprador (ou system_admin) pode visualizar.')]
+    public function show(ShowPaymentRequest $request): JsonResponse
+    {
+        try {
+            $data = $this->service->show($request->validated());
+
+            /**
+             * @status 200
+             *
+             * @body array{error: false, message: string, data: PaymentResource}
+             */
+            return ReturnApi::success($data, 'Pagamento encontrado com sucesso.');
         } catch (ApiException $e) {
             /**
              * @status 400
