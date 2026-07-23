@@ -11,10 +11,6 @@ class AbacatePayGatewayService
     /**
      * Cria uma cobrança Pix avulsa (Checkout Transparente) na Abacate Pay.
      *
-     * O formato exato do corpo da requisição/resposta não pôde ser confirmado
-     * com certeza contra a documentação oficial (ver plano de implementação) —
-     * validar contra uma chamada real em sandbox antes de ir para produção.
-     *
      * @return array{id: ?string, brCode: ?string, brCodeBase64: ?string, expiresAt: ?string}
      */
     public function createPixCharge(Payment $payment): array
@@ -22,10 +18,11 @@ class AbacatePayGatewayService
         $response = Http::withToken(config('services.abacate_pay.api_key'))
             ->baseUrl(config('services.abacate_pay.base_url'))
             ->post('/transparents/create', [
-                'amount' => (int) round(((float) $payment->amount) * 100),
-                'expiresIn' => 3600,
-                'metadata' => [
-                    'external_id' => $payment->id,
+                'method' => 'PIX',
+                'data' => [
+                    'amount' => (int) round(((float) $payment->amount) * 100),
+                    'expiresIn' => 3600,
+                    'externalId' => (string) $payment->id,
                 ],
             ]);
 
