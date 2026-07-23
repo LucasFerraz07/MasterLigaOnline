@@ -21,6 +21,22 @@ class Subscription extends Controller
         private readonly SubscriptionService $service
     ) {}
 
+    #[Endpoint(operationId: 'catalogSubscription', title: 'Catalog Subscription', description: '**operationId:** `catalogSubscription` — Lista os planos disponíveis para contratação. Em **200**, `data` segue o schema **SubscriptionCollection** (paginado). Requer apenas autenticação (sem permissão específica) — usado pela tela de escolha de plano antes do pagamento.')]
+    public function catalog(IndexSubscriptionRequest $request): JsonResponse
+    {
+        try {
+            $data = $this->service->index($request->validated());
+            return ReturnApi::success($data, 'Planos listados com sucesso.');
+        } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
+            return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
+        }
+    }
+
     #[Endpoint(operationId: 'indexSubscription', title: 'Index Subscription', description: '**operationId:** `indexSubscription` — Lista assinaturas. Em **200**, `data` segue o schema **SubscriptionCollection** (paginado). Requer permissão: subscription.view')]
     public function index(IndexSubscriptionRequest $request): JsonResponse
     {
