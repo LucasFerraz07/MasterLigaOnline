@@ -8,11 +8,11 @@ Route::middleware('auth.api', 'permission:transfer-bid.view')->group(function ()
     Route::get('/{id}', [TransferBid::class, 'show']);
 });
 
-Route::middleware('auth.api', 'permission:transfer-bid.create')->group(function () {
+Route::middleware('auth.api', 'permission:transfer-bid.create', 'league.active')->group(function () {
     Route::post('/', [TransferBid::class, 'store']);
 });
 
-Route::middleware('auth.api', 'permission:transfer-bid.update')->group(function () {
+Route::middleware('auth.api', 'permission:transfer-bid.update', 'league.active')->group(function () {
     Route::put('/{id}/aceitar', [TransferBid::class, 'accept']);
     Route::put('/{id}/recusar', [TransferBid::class, 'reject']);
     Route::put('/{id}/cancelar', [TransferBid::class, 'cancel']);

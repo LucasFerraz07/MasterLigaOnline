@@ -8,10 +8,10 @@ Route::middleware('auth.api', 'permission:squad.view')->group(function () {
     Route::get('/{id}', [Squad::class, 'show']);
 });
 
-Route::middleware('auth.api', 'permission:squad.update')->group(function () {
+Route::middleware('auth.api', 'permission:squad.update', 'league.active')->group(function () {
     Route::put('/reajuste-salario/{id}', [Squad::class, 'adjustSalary']);
 });
 
-Route::middleware('auth.api', 'permission:squad.create')->group(function () {
+Route::middleware('auth.api', 'permission:squad.create', 'league.active')->group(function () {
     Route::post('/comprar-jogador-livre', [Squad::class, 'buyFreeAgent']);
 });

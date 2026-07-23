@@ -7,6 +7,6 @@ Route::middleware('auth.api', 'permission:league-category-price.view')->group(fu
     Route::get('/', [LeagueCategoryPrice::class, 'index']);
 });
 
-Route::middleware('auth.api', 'permission:league-category-price.update')->group(function () {
+Route::middleware('auth.api', 'permission:league-category-price.update', 'league.active')->group(function () {
     Route::put('/{id}', [LeagueCategoryPrice::class, 'update']);
 });

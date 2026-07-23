@@ -8,6 +8,6 @@ Route::middleware('auth.api', 'permission:player.view')->group(function () {
     Route::get('/{id}', [Player::class, 'show']);
 });
 
-Route::middleware('auth.api', 'permission:player.update')->group(function () {
+Route::middleware('auth.api', 'permission:player.update', 'league.active')->group(function () {
     Route::post('image/{id}', [Player::class, 'uploadImage']);
 });

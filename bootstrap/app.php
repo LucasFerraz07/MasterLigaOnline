@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureLeagueSubscriptionActive;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -32,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission'          => PermissionMiddleware::class,
             'role'                => RoleMiddleware::class,
             'role_or_permission'  => RoleOrPermissionMiddleware::class,
+            'league.active'       => EnsureLeagueSubscriptionActive::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
