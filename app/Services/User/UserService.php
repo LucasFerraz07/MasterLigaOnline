@@ -75,16 +75,24 @@ class UserService
     public function update(array $data): UserResource
     {
         return DB::transaction(function () use ($data): UserResource {
+            $actor = Auth::user();
+            $isLeagueAdmin = $actor->hasRole(UserType::LEAGUE_ADMIN->value);
             $user = User::findOrFail($data['id']);
 
-            $user->update([
+            if($actor->id != $data['id'] || !$isLeagueAdmin){
+                throw new ApiException('Você só pode editar seu próprio perfil', 403);
+            }
+
+            $userUpdateData = [
                 'username' => $data['username'] ?? $user->username,
                 'email'    => $data['email'] ?? $user->email,
                 'password' => $data['password'] ?? $user->password,
                 'phone'    => $data['phone'] ?? $user->phone,
-            ]);
+            ];
 
-            if (! empty($data['role'])) {
+            $user->update($userUpdateData);
+
+            if ($isLeagueAdmin && !empty($data['role'])) {
                 $user->syncRoles([$data['role']]);
             }
 
