@@ -16,6 +16,16 @@ class AdjustBalanceUserRequest extends FormRequest
     {
         return true;
     }
+    
+    /**
+     * Merge the route parameter into the data to be validated.
+     */
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'id' => $this->route('id'),
+        ]);
+    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -25,7 +35,7 @@ class AdjustBalanceUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['required', 'uuid', 'exists:users,id'],
+            'id' => ['required', 'uuid', 'exists:users,id'],
             'operation' => ['required', Rule::enum(TransactionOperation::class)],
             'amount' => ['required', 'numeric', 'min:0.01'],
             'description' => ['nullable', 'string', 'max:255'],
@@ -40,7 +50,7 @@ class AdjustBalanceUserRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'user_id' => 'usuário',
+            'id' => 'id do usuário',
             'operation' => 'operação',
             'amount' => 'valor',
             'description' => 'descrição',

@@ -79,7 +79,7 @@ class UserService
             $isLeagueAdmin = $actor->hasRole(UserType::LEAGUE_ADMIN->value);
             $user = User::findOrFail($data['id']);
 
-            if($actor->id != $data['id'] || !$isLeagueAdmin){
+            if($actor->id != $data['id'] && !$isLeagueAdmin){
                 throw new ApiException('Você só pode editar seu próprio perfil', 403);
             }
 
@@ -124,9 +124,13 @@ class UserService
                 : bcsub((string) $targetUser->balance, $amount, 2);
             $targetUser->save();
 
+            $transactionName = $operation === TransactionOperation::Credit
+                ? 'manual_credit'
+                : 'manual_debit';
+
             $transactionType = TransactionType::where(
                 'name',
-                $operation === TransactionOperation::Credit ? 'manual_credit' : 'manual_debit'
+                $transactionName
             )->firstOrFail();
 
             FinancialTransaction::create([

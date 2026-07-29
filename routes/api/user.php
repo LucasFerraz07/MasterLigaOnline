@@ -13,7 +13,7 @@ Route::middleware('auth.api', 'permission:user.create', 'league.active')->group(
 });
 
 Route::middleware('auth.api', 'permission:user.balance', 'league.active')->group(function () {
-    Route::put('/ajustar-saldo', [User::class, 'adjustBalance']);
+    Route::put('/{id}/ajustar-saldo', [User::class, 'adjustBalance']);
 });
 
 Route::middleware('auth.api', 'permission:user.update', 'league.active')->group(function () {
