@@ -106,7 +106,7 @@ class UserService
             $actor = Auth::user();
             $isSystemAdmin = $actor->hasRole(UserType::SYSTEM_ADMIN->value);
 
-            $targetUser = User::findOrFail($data['user_id']);
+            $targetUser = User::findOrFail($data['id']);
 
             if (! $isSystemAdmin && $targetUser->league_id !== $actor->league_id) {
                 throw new ApiException('Você só pode ajustar o saldo de usuários da sua própria liga.', 403);
