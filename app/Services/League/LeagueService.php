@@ -115,10 +115,10 @@ class LeagueService
 
             $league->update([
                 'name' => $data['name'] ?? $league->name,
-                'player_limit' => $data['player_limit'] ?? $league->player_limit,
-                'silver_limit' => $data['silver_limit'] ?? $league->silver_limit,
-                'golden_limit' => $data['golden_limit'] ?? $league->golden_limit,
-                'black_limit' => $data['black_limit'] ?? $league->black_limit,
+                'player_limit' => array_key_exists('player_limit', $data) ? $data['player_limit'] : $league->player_limit,
+                'silver_limit' => array_key_exists('silver_limit', $data) ? $data['silver_limit'] : $league->silver_limit,
+                'golden_limit' => array_key_exists('golden_limit', $data) ? $data['golden_limit'] : $league->golden_limit,
+                'black_limit' => array_key_exists('black_limit', $data) ? $data['black_limit'] : $league->black_limit,
                 'mulct_contract_limit' => $data['mulct_contract_limit'] ?? $league->mulct_contract_limit,
             ]);
 

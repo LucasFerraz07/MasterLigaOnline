@@ -72,7 +72,7 @@ class Season extends Controller
         }
     }
 
-    #[Endpoint(operationId: 'advancePhaseSeason', title: 'Advance Season Phase', description: '**operationId:** `advancePhaseSeason` — Avança a fase da temporada. Em **200**, `data` segue o schema **SeasonResource**. Requer permissão: season.update')]
+    #[Endpoint(operationId: 'advancePhaseSeason', title: 'Advance Season Phase', description: '**operationId:** `advancePhaseSeason` — Avança a fase da temporada. Ao sair da Primeira Janela, aplica os limites de elenco da liga e libera os jogadores excedentes de maior overall. Em **200**, `data` segue o schema **SeasonResource**. Requer permissão: season.update')]
     public function advancePhase(AdvancePhaseSeasonRequest $request): JsonResponse
     {
         try {

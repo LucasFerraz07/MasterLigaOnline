@@ -9,11 +9,16 @@ use App\Exceptions\ApiException;
 use App\Http\Resources\Season\SeasonCollection;
 use App\Http\Resources\Season\SeasonResource;
 use App\Models\Season;
+use App\Services\Squad\SquadLimitService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class SeasonService
 {
+    public function __construct(
+        private readonly SquadLimitService $squadLimitService
+    ) {}
+
     public function index(array $data): SeasonCollection
     {
         $actor = Auth::user();
@@ -74,6 +79,11 @@ class SeasonService
 
             if ($season->status === SeasonStatus::Closed) {
                 throw new ApiException('Esta temporada já foi encerrada.', 409);
+            }
+
+            if ($season->phase === LeaguePhase::FirstWindow) {
+                $league = $season->league()->lockForUpdate()->firstOrFail();
+                $this->squadLimitService->enforceForLeague($league);
             }
 
             [$phase, $status] = match ($season->phase) {
