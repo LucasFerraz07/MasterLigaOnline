@@ -6,6 +6,7 @@ use App\Enums\UserType;
 use App\Models\Concerns\Tenantable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -17,7 +18,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
  */
 class User extends Authenticatable implements JWTSubject
 {
-    use HasUuids, SoftDeletes, HasRoles, Tenantable;
+    use HasRoles, HasUuids, SoftDeletes, Tenantable;
 
     protected $guard_name = 'api';
 
@@ -37,12 +38,11 @@ class User extends Authenticatable implements JWTSubject
         'password',
     ];
 
-
     protected function casts(): array
     {
         return [
             'password' => 'hashed',
-            'balance'  => 'decimal:2',
+            'balance' => 'decimal:2',
             'user_type' => UserType::class,
         ];
     }
@@ -75,5 +75,15 @@ class User extends Authenticatable implements JWTSubject
     public function clubIdentity(): HasOne
     {
         return $this->hasOne(ClubIdentity::class);
+    }
+
+    public function homeMatches(): HasMany
+    {
+        return $this->hasMany(Game::class, 'home_user_id');
+    }
+
+    public function awayMatches(): HasMany
+    {
+        return $this->hasMany(Game::class, 'away_user_id');
     }
 }

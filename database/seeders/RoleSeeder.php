@@ -16,60 +16,63 @@ class RoleSeeder extends Seeder
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions = [
-            //Assinaturas
+            // Assinaturas
             'subscription.view',
             'subscription.create',
             'subscription.update',
             'subscription.delete',
-            //Clubes
+            // Clubes
             'club.view',
             'club.create',
             'club.update',
             'club.delete',
-            //Tipo de transação
+            // Tipo de transação
             'transaction-type.view',
             'transaction-type.create',
             'transaction-type.update',
             'transaction-type.delete',
-            //Ligas
+            // Ligas
             'league.view',
             'league.create',
             'league.update',
             'league.delete',
             'league.restore',
             'league.force-delete',
-            //Usuários
+            // Usuários
             'user.view',
             'user.create',
             'user.update',
             'user.delete',
             'user.balance',
-            //Preço das categorias
+            // Preço das categorias
             'league-category-price.view',
             'league-category-price.update',
-            //Temporadas
+            // Temporadas
             'season.view',
             'season.create',
             'season.update',
-            //Jogadores
+            // Partidas
+            'match.view',
+            'match.update',
+            // Jogadores
             'player.view',
             'player.update',
-            //Escalação
+            // Escalação
             'squad.view',
             'squad.create',
             'squad.update',
-            //ClubIdentity
+            // ClubIdentity
             'club-identity.view',
             'club-identity.update',
-            //Histórico de transferências
+            // Histórico de transferências
             'transfer.view',
-            //Transferências
+            // Transferências
             'transfer-bid.view',
             'transfer-bid.create',
             'transfer-bid.update',
             'mulct.view',
             'mulct.create',
-            //Histórico financeiro
+            // Histórico financeiro
             'financial-transaction.view',
         ];
 
@@ -93,6 +96,8 @@ class RoleSeeder extends Seeder
             'season.view',
             'season.create',
             'season.update',
+            'match.view',
+            'match.update',
             'player.view',
             'squad.view',
             'squad.create',
@@ -119,6 +124,8 @@ class RoleSeeder extends Seeder
             'player.view',
             'league-category-price.view',
             'league-category-price.update',
+            'match.view',
+            'match.update',
             'squad.view',
             'squad.create',
             'squad.update',
@@ -140,6 +147,8 @@ class RoleSeeder extends Seeder
         $default->syncPermissions([
             'league.view',
             'league-category-price.view',
+            'match.view',
+            'match.update',
             'player.view',
             'squad.view',
             'squad.create',
@@ -154,7 +163,7 @@ class RoleSeeder extends Seeder
             'mulct.create',
             'financial-transaction.view',
             'user.view',
-            'user.update'
+            'user.update',
         ]);
     }
 }

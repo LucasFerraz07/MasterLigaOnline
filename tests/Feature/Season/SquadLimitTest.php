@@ -7,6 +7,7 @@ use App\Enums\Category;
 use App\Enums\LeaguePhase;
 use App\Enums\SeasonStatus;
 use App\Enums\UserType;
+use App\Models\ClubIdentity;
 use App\Models\League;
 use App\Models\LeagueCategoryPrice;
 use App\Models\Player;
@@ -68,6 +69,13 @@ class SquadLimitTest extends TestCase
             $table->string('image_path')->nullable();
             $table->timestamps();
         });
+        Schema::create('club_identities', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->uuid('league_id');
+            $table->uuid('user_id');
+            $table->uuid('club_id');
+            $table->timestamps();
+        });
         Schema::create('seasons', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->uuid('league_id');
@@ -76,6 +84,21 @@ class SquadLimitTest extends TestCase
             $table->date('end_date')->nullable();
             $table->string('status', 20)->default('open');
             $table->string('phase', 30)->default('window_opening');
+            $table->timestamps();
+        });
+        Schema::create('matches', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->uuid('league_id');
+            $table->uuid('season_id');
+            $table->uuid('home_user_id');
+            $table->uuid('away_user_id')->nullable();
+            $table->unsignedTinyInteger('home_goals')->default(0);
+            $table->unsignedTinyInteger('away_goals')->default(0);
+            $table->unsignedTinyInteger('round');
+            $table->unsignedTinyInteger('half');
+            $table->boolean('is_bye')->default(false);
+            $table->date('match_date')->nullable();
+            $table->string('status', 20)->default('pending');
             $table->timestamps();
         });
         Schema::create('league_category_prices', function (Blueprint $table): void {
@@ -100,7 +123,7 @@ class SquadLimitTest extends TestCase
 
     protected function tearDown(): void
     {
-        foreach (['squads', 'league_category_prices', 'seasons', 'players', 'users', 'leagues', 'subscriptions'] as $table) {
+        foreach (['squads', 'matches', 'league_category_prices', 'seasons', 'club_identities', 'players', 'users', 'leagues', 'subscriptions'] as $table) {
             Schema::dropIfExists($table);
         }
 
@@ -183,6 +206,14 @@ class SquadLimitTest extends TestCase
             'league_id' => $league->id,
             'user_type' => UserType::USER,
         ]);
+        $secondUser = User::create([
+            'username' => 'participant-'.str()->uuid(),
+            'email' => str()->uuid().'@example.test',
+            'password' => 'password',
+            'phone' => '11999999999',
+            'league_id' => $league->id,
+            'user_type' => UserType::USER,
+        ]);
         $season = Season::create([
             'league_id' => $league->id,
             'season_number' => 1,
@@ -197,6 +228,14 @@ class SquadLimitTest extends TestCase
                 'category' => $category,
                 'base_salary' => '100.00',
                 'min_overall' => $category->defaultMinOverall(),
+            ]);
+        }
+
+        foreach ([$user, $secondUser] as $participant) {
+            ClubIdentity::create([
+                'league_id' => $league->id,
+                'user_id' => $participant->id,
+                'club_id' => str()->uuid(),
             ]);
         }
 

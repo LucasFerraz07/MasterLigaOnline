@@ -85,11 +85,13 @@ O owner define quantas compras por multa cada participante pode realizar e quant
 
 ## Partidas e Classificação
 
-Ao iniciar o primeiro turno, o sistema gera automaticamente todos os confrontos da temporada em formato de pontos corridos — cada participante enfrenta todos os outros exatamente uma vez por turno. O segundo turno é o espelho do primeiro, com mandante e visitante invertidos.
+Ao iniciar o primeiro turno, o sistema exige pelo menos dois participantes ativos com clube atribuído e gera automaticamente a tabela completa da temporada em formato de pontos corridos — cada participante enfrenta todos os outros exatamente uma vez por turno. O segundo turno já é armazenado nesse momento como espelho do primeiro, com mandante e visitante invertidos.
 
 Se o número de participantes for ímpar, um participante fica de folga por rodada, rotacionando para que todos fiquem de folga o mesmo número de vezes. A folga equivale a uma vitória automática.
 
-A classificação é atualizada automaticamente após cada partida finalizada, considerando pontos, vitórias, empates, derrotas e saldo de gols.
+O placar de uma partida pode ser publicado ou editado apenas pelos dois participantes envolvidos ou pelo `league_admin`. Jogos do primeiro turno aceitam resultado somente enquanto o primeiro turno está ativo; jogos do segundo turno, somente durante o segundo turno. Folgas não aceitam resultado manual.
+
+A classificação será atualizada automaticamente após cada partida finalizada, considerando pontos, vitórias, empates, derrotas e saldo de gols. Essa integração ainda depende da implementação da classificação.
 
 ---
 

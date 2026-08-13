@@ -8,6 +8,7 @@ use App\Models\Concerns\Tenantable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @mixin IdeHelperSeason
@@ -39,6 +40,11 @@ class Season extends Model
     public function league(): BelongsTo
     {
         return $this->belongsTo(League::class);
+    }
+
+    public function matches(): HasMany
+    {
+        return $this->hasMany(Game::class);
     }
 
     /**

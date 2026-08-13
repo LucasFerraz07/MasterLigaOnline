@@ -9,6 +9,7 @@ use App\Exceptions\ApiException;
 use App\Http\Resources\Season\SeasonCollection;
 use App\Http\Resources\Season\SeasonResource;
 use App\Models\Season;
+use App\Services\Game\GameScheduleService;
 use App\Services\Squad\SquadLimitService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +17,8 @@ use Illuminate\Support\Facades\DB;
 class SeasonService
 {
     public function __construct(
-        private readonly SquadLimitService $squadLimitService
+        private readonly SquadLimitService $squadLimitService,
+        private readonly GameScheduleService $gameScheduleService
     ) {}
 
     public function index(array $data): SeasonCollection
@@ -75,7 +77,7 @@ class SeasonService
     public function advancePhase(array $data): SeasonResource
     {
         return DB::transaction(function () use ($data): SeasonResource {
-            $season = Season::findOrFail($data['id']);
+            $season = Season::query()->lockForUpdate()->findOrFail($data['id']);
 
             if ($season->status === SeasonStatus::Closed) {
                 throw new ApiException('Esta temporada já foi encerrada.', 409);
@@ -84,6 +86,7 @@ class SeasonService
             if ($season->phase === LeaguePhase::FirstWindow) {
                 $league = $season->league()->lockForUpdate()->firstOrFail();
                 $this->squadLimitService->enforceForLeague($league);
+                $this->gameScheduleService->generateForSeason($season, $league);
             }
 
             [$phase, $status] = match ($season->phase) {

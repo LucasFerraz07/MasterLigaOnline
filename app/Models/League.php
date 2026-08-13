@@ -93,4 +93,9 @@ class League extends Model
     {
         return $this->hasMany(ClubIdentity::class);
     }
+
+    public function matches(): HasMany
+    {
+        return $this->hasMany(Game::class);
+    }
 }
