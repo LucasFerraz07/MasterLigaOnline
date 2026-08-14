@@ -121,6 +121,7 @@ class RoleSeeder extends Seeder
         $coOwner->syncPermissions([
             'league.view',
             'league.update',
+            'season.view',
             'player.view',
             'league-category-price.view',
             'league-category-price.update',
@@ -147,6 +148,7 @@ class RoleSeeder extends Seeder
         $default->syncPermissions([
             'league.view',
             'league-category-price.view',
+            'season.view',
             'match.view',
             'match.update',
             'player.view',
