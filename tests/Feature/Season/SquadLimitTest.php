@@ -8,13 +8,17 @@ use App\Enums\LeaguePhase;
 use App\Enums\SeasonStatus;
 use App\Enums\UserType;
 use App\Models\ClubIdentity;
+use App\Models\FinancialTransaction;
+use App\Models\Game;
 use App\Models\League;
 use App\Models\LeagueCategoryPrice;
 use App\Models\Player;
 use App\Models\Season;
 use App\Models\Squad;
 use App\Models\Subscription;
+use App\Models\TransactionType;
 use App\Models\User;
+use App\Services\League\LeagueService;
 use App\Services\Season\SeasonService;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -41,6 +45,9 @@ class SquadLimitTest extends TestCase
             $table->unsignedTinyInteger('black_limit')->nullable();
             $table->unsignedTinyInteger('mulct_contract_limit')->default(2);
             $table->unsignedTinyInteger('player_limit')->nullable();
+            $table->decimal('win_credit', 12, 2)->default(55000);
+            $table->decimal('draw_credit', 12, 2)->default(17000);
+            $table->decimal('loss_credit', 12, 2)->default(3000);
             $table->uuid('subscription_id')->nullable();
             $table->date('subscription_start');
             $table->date('subscription_end');
@@ -74,6 +81,14 @@ class SquadLimitTest extends TestCase
             $table->uuid('league_id');
             $table->uuid('user_id');
             $table->uuid('club_id');
+            $table->timestamps();
+        });
+        Schema::create('owners', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->string('full_name');
+            $table->uuid('league_id');
+            $table->uuid('user_id');
+            $table->softDeletes();
             $table->timestamps();
         });
         Schema::create('seasons', function (Blueprint $table): void {
@@ -119,11 +134,28 @@ class SquadLimitTest extends TestCase
             $table->timestamp('acquired_at')->nullable();
             $table->timestamps();
         });
+        Schema::create('transaction_types', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->string('name', 50)->unique();
+            $table->string('description', 100)->nullable();
+            $table->enum('operation', ['credit', 'debit']);
+            $table->softDeletes();
+            $table->timestamps();
+        });
+        Schema::create('financial_transactions', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->uuid('league_id');
+            $table->uuid('user_id');
+            $table->uuid('transaction_type_id');
+            $table->decimal('amount', 12, 2);
+            $table->string('description', 255)->nullable();
+            $table->timestamps();
+        });
     }
 
     protected function tearDown(): void
     {
-        foreach (['squads', 'matches', 'league_category_prices', 'seasons', 'club_identities', 'players', 'users', 'leagues', 'subscriptions'] as $table) {
+        foreach (['financial_transactions', 'transaction_types', 'squads', 'matches', 'league_category_prices', 'seasons', 'owners', 'club_identities', 'players', 'users', 'leagues', 'subscriptions'] as $table) {
             Schema::dropIfExists($table);
         }
 
@@ -143,6 +175,32 @@ class SquadLimitTest extends TestCase
             'id' => $season->id,
             'phase' => LeaguePhase::FirstHalf->value,
             'status' => SeasonStatus::Active->value,
+        ]);
+    }
+
+    public function test_it_uses_default_and_configurable_performance_credit_values(): void
+    {
+        [$league] = $this->createLeagueContext();
+
+        $this->assertDatabaseHas('leagues', [
+            'id' => $league->id,
+            'win_credit' => '55000.00',
+            'draw_credit' => '17000.00',
+            'loss_credit' => '3000.00',
+        ]);
+
+        app(LeagueService::class)->update([
+            'id' => $league->id,
+            'win_credit' => '100.50',
+            'draw_credit' => '50.25',
+            'loss_credit' => '10.00',
+        ]);
+
+        $this->assertDatabaseHas('leagues', [
+            'id' => $league->id,
+            'win_credit' => '100.50',
+            'draw_credit' => '50.25',
+            'loss_credit' => '10.00',
         ]);
     }
 
@@ -182,6 +240,119 @@ class SquadLimitTest extends TestCase
         $this->assertDatabaseHas('squads', ['player_id' => $keptBlack->id, 'league_id' => $league->id]);
         $this->assertDatabaseHas('squads', ['player_id' => $keptSilver->id, 'league_id' => $league->id]);
         $this->assertDatabaseHas('squads', ['player_id' => $keptBronze->id, 'league_id' => $league->id]);
+    }
+
+    public function test_it_debits_each_participants_total_squad_salary_when_the_season_ends(): void
+    {
+        [$league, $user, $season] = $this->createLeagueContext();
+        $otherUser = User::withoutGlobalScopes()
+            ->where('league_id', $league->id)
+            ->where('id', '!=', $user->id)
+            ->firstOrFail();
+
+        $user->update(['balance' => '150.00']);
+        $otherUser->update(['balance' => '250.00']);
+        $this->createPlayerInSquad($league, $user, 'Salary player one', 80);
+        $this->createPlayerInSquad($league, $user, 'Salary player two', 81);
+        $this->createPlayerInSquad($league, $otherUser, 'Salary player three', 82);
+
+        $season->update([
+            'phase' => LeaguePhase::SecondHalf,
+            'status' => SeasonStatus::Active,
+        ]);
+
+        app(SeasonService::class)->advancePhase(['id' => $season->id]);
+
+        $this->assertDatabaseHas('users', ['id' => $user->id, 'balance' => '-50.00']);
+        $this->assertDatabaseHas('users', ['id' => $otherUser->id, 'balance' => '150.00']);
+        $this->assertDatabaseHas('seasons', [
+            'id' => $season->id,
+            'phase' => LeaguePhase::Ended->value,
+            'status' => SeasonStatus::Closed->value,
+        ]);
+    }
+
+    public function test_it_credits_consolidated_performance_before_debiting_squad_salaries(): void
+    {
+        [$league, $user, $season] = $this->createLeagueContext();
+        $otherUser = User::withoutGlobalScopes()
+            ->where('league_id', $league->id)
+            ->where('id', '!=', $user->id)
+            ->firstOrFail();
+        $byeUser = User::create([
+            'username' => 'participant-'.str()->uuid(),
+            'email' => str()->uuid().'@example.test',
+            'password' => 'password',
+            'phone' => '11999999999',
+            'league_id' => $league->id,
+            'user_type' => UserType::USER,
+        ]);
+
+        $league->update([
+            'win_credit' => '55000.00',
+            'draw_credit' => '17000.00',
+            'loss_credit' => '3000.00',
+        ]);
+        $user->update(['balance' => '0.00']);
+        $otherUser->update(['balance' => '0.00']);
+        $byeUser->update(['balance' => '0.00']);
+        $this->createPlayerInSquad($league, $user, 'Performance salary player', 80);
+
+        TransactionType::create([
+            'name' => 'season_performance_credit',
+            'description' => 'Crédito por desempenho na temporada',
+            'operation' => 'credit',
+        ]);
+        $season->update([
+            'phase' => LeaguePhase::SecondHalf,
+            'status' => SeasonStatus::Active,
+        ]);
+        Game::create([
+            'league_id' => $league->id,
+            'season_id' => $season->id,
+            'home_user_id' => $user->id,
+            'away_user_id' => $otherUser->id,
+            'home_goals' => 2,
+            'away_goals' => 1,
+            'round' => 1,
+            'half' => 2,
+            'is_bye' => false,
+            'status' => 'finished',
+        ]);
+        Game::create([
+            'league_id' => $league->id,
+            'season_id' => $season->id,
+            'home_user_id' => $user->id,
+            'away_user_id' => $otherUser->id,
+            'home_goals' => 0,
+            'away_goals' => 0,
+            'round' => 2,
+            'half' => 2,
+            'is_bye' => false,
+            'status' => 'finished',
+        ]);
+        Game::create([
+            'league_id' => $league->id,
+            'season_id' => $season->id,
+            'home_user_id' => $byeUser->id,
+            'away_user_id' => null,
+            'home_goals' => 0,
+            'away_goals' => 0,
+            'round' => 1,
+            'half' => 2,
+            'is_bye' => true,
+            'status' => 'finished',
+        ]);
+
+        app(SeasonService::class)->advancePhase(['id' => $season->id]);
+
+        $this->assertDatabaseHas('users', ['id' => $user->id, 'balance' => '71900.00']);
+        $this->assertDatabaseHas('users', ['id' => $otherUser->id, 'balance' => '20000.00']);
+        $this->assertDatabaseHas('users', ['id' => $byeUser->id, 'balance' => '55000.00']);
+        $this->assertSame(3, FinancialTransaction::withoutGlobalScopes()
+            ->where('league_id', $league->id)
+            ->where('transaction_type_id', TransactionType::where('name', 'season_performance_credit')->firstOrFail()->id)
+            ->count());
     }
 
     /** @return array{League, User, Season} */

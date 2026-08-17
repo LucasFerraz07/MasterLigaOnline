@@ -81,8 +81,16 @@ class SquadLimitService
                 'league_category_prices.category as player_category',
             ])
             ->join('players', 'players.id', '=', 'squads.player_id')
-            ->where('squads.league_id', $leagueId)
-            ->lockForUpdate();
+            ->where('squads.league_id', $leagueId);
+
+        // O PostgreSQL não permite bloquear o lado anulável de um LEFT JOIN.
+        // A categoria é apenas consultada; somente os registros de squads
+        // precisam permanecer bloqueados até que os excedentes sejam liberados.
+        if ($query->getConnection()->getDriverName() === 'pgsql') {
+            $query->lock('for update of squads');
+        } else {
+            $query->lockForUpdate();
+        }
 
         LeagueCategoryPrice::applyBestMatchJoin($query, leagueId: $leagueId);
 

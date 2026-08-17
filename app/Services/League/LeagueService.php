@@ -120,6 +120,9 @@ class LeagueService
                 'golden_limit' => array_key_exists('golden_limit', $data) ? $data['golden_limit'] : $league->golden_limit,
                 'black_limit' => array_key_exists('black_limit', $data) ? $data['black_limit'] : $league->black_limit,
                 'mulct_contract_limit' => $data['mulct_contract_limit'] ?? $league->mulct_contract_limit,
+                'win_credit' => array_key_exists('win_credit', $data) ? $data['win_credit'] : $league->win_credit,
+                'draw_credit' => array_key_exists('draw_credit', $data) ? $data['draw_credit'] : $league->draw_credit,
+                'loss_credit' => array_key_exists('loss_credit', $data) ? $data['loss_credit'] : $league->loss_credit,
             ]);
 
             $league->load(['owners.user', 'subscription']);

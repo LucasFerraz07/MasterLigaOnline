@@ -53,6 +53,11 @@ class TransactionTypeSeeder extends Seeder
                 'description' => 'Débito manual (ajuste do dono da liga)',
                 'operation' => 'debit',
             ],
+            [
+                'name' => 'season_performance_credit',
+                'description' => 'Crédito por desempenho na temporada',
+                'operation' => 'credit',
+            ],
         ];
 
         foreach ($types as $type) {

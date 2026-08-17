@@ -23,6 +23,9 @@ class League extends Model
         'black_limit',
         'mulct_contract_limit',
         'player_limit',
+        'win_credit',
+        'draw_credit',
+        'loss_credit',
         'subscription_id',
         'subscription_start',
         'subscription_end',
@@ -44,6 +47,9 @@ class League extends Model
             'black_limit' => 'integer',
             'mulct_contract_limit' => 'integer',
             'player_limit' => 'integer',
+            'win_credit' => 'decimal:2',
+            'draw_credit' => 'decimal:2',
+            'loss_credit' => 'decimal:2',
         ];
     }
 

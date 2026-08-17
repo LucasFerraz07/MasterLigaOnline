@@ -40,6 +40,9 @@ class UpdateLeagueRequest extends FormRequest
             'golden_limit' => ['nullable', 'integer', 'min:0', 'max:255'],
             'black_limit' => ['nullable', 'integer', 'min:0', 'max:255'],
             'mulct_contract_limit' => ['nullable', 'integer', 'min:0', 'max:255'],
+            'win_credit' => ['nullable', 'numeric', 'min:0'],
+            'draw_credit' => ['nullable', 'numeric', 'min:0'],
+            'loss_credit' => ['nullable', 'numeric', 'min:0'],
         ];
     }
 
@@ -57,6 +60,9 @@ class UpdateLeagueRequest extends FormRequest
             'golden_limit' => 'limite de jogadores ouro',
             'black_limit' => 'limite de jogadores black',
             'mulct_contract_limit' => 'limite de contratos de multa',
+            'win_credit' => 'crédito por vitória',
+            'draw_credit' => 'crédito por empate',
+            'loss_credit' => 'crédito por derrota',
         ];
     }
 }

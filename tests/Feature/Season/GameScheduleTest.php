@@ -11,6 +11,7 @@ use App\Models\ClubIdentity;
 use App\Models\Game;
 use App\Models\League;
 use App\Models\Season;
+use App\Models\TransactionType;
 use App\Models\User;
 use App\Services\Game\GameScheduleService;
 use App\Services\Game\GameService;
@@ -35,6 +36,9 @@ class GameScheduleTest extends TestCase
             $table->unsignedTinyInteger('black_limit')->nullable();
             $table->unsignedTinyInteger('mulct_contract_limit')->default(2);
             $table->unsignedTinyInteger('player_limit')->nullable();
+            $table->decimal('win_credit', 12, 2)->default(55000);
+            $table->decimal('draw_credit', 12, 2)->default(17000);
+            $table->decimal('loss_credit', 12, 2)->default(3000);
             $table->uuid('subscription_id')->nullable();
             $table->date('subscription_start');
             $table->date('subscription_end');
@@ -98,13 +102,46 @@ class GameScheduleTest extends TestCase
             $table->timestamps();
             $table->unique(['season_id', 'half', 'home_user_id', 'away_user_id']);
         });
+        Schema::create('squads', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->uuid('league_id');
+            $table->uuid('user_id');
+            $table->uuid('player_id');
+            $table->string('acquisition_type', 25);
+            $table->decimal('salary', 12, 2);
+            $table->timestamp('acquired_at')->nullable();
+            $table->timestamps();
+        });
+        Schema::create('transaction_types', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->string('name', 50)->unique();
+            $table->string('description', 100)->nullable();
+            $table->enum('operation', ['credit', 'debit']);
+            $table->softDeletes();
+            $table->timestamps();
+        });
+        Schema::create('financial_transactions', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->uuid('league_id');
+            $table->uuid('user_id');
+            $table->uuid('transaction_type_id');
+            $table->decimal('amount', 12, 2);
+            $table->string('description', 255)->nullable();
+            $table->timestamps();
+        });
+
+        TransactionType::create([
+            'name' => 'season_performance_credit',
+            'description' => 'Crédito por desempenho na temporada',
+            'operation' => 'credit',
+        ]);
     }
 
     protected function tearDown(): void
     {
         Auth::forgetUser();
 
-        foreach (['matches', 'seasons', 'club_identities', 'model_has_roles', 'roles', 'users', 'leagues'] as $table) {
+        foreach (['financial_transactions', 'transaction_types', 'squads', 'matches', 'seasons', 'club_identities', 'model_has_roles', 'roles', 'users', 'leagues'] as $table) {
             Schema::dropIfExists($table);
         }
 
@@ -199,6 +236,80 @@ class GameScheduleTest extends TestCase
         app(GameScheduleService::class)->generateForSeason($season, $league);
 
         $this->assertSame(2, Game::withoutGlobalScopes()->where('season_id', $season->id)->count());
+    }
+
+    public function test_it_cannot_advance_to_the_mid_window_with_pending_first_half_games(): void
+    {
+        [$league, $season] = $this->createLeagueContext();
+        $this->createParticipants($league, 2);
+        app(SeasonService::class)->advancePhase(['id' => $season->id]);
+
+        try {
+            app(SeasonService::class)->advancePhase(['id' => $season->id]);
+            $this->fail('Era esperado bloquear a Janela Intermediária com partidas pendentes no Primeiro Turno.');
+        } catch (ApiException $exception) {
+            $this->assertSame(422, $exception->getCode());
+        }
+
+        $this->assertDatabaseHas('seasons', [
+            'id' => $season->id,
+            'phase' => LeaguePhase::FirstHalf->value,
+            'status' => SeasonStatus::Active->value,
+        ]);
+
+        Game::withoutGlobalScopes()
+            ->where('season_id', $season->id)
+            ->where('half', 1)
+            ->update(['status' => MatchStatus::Finished->value]);
+
+        app(SeasonService::class)->advancePhase(['id' => $season->id]);
+
+        $this->assertDatabaseHas('seasons', [
+            'id' => $season->id,
+            'phase' => LeaguePhase::MidWindow->value,
+            'status' => SeasonStatus::Open->value,
+        ]);
+    }
+
+    public function test_it_cannot_end_the_season_with_pending_second_half_games(): void
+    {
+        [$league, $season] = $this->createLeagueContext();
+        $this->createParticipants($league, 2);
+        app(SeasonService::class)->advancePhase(['id' => $season->id]);
+
+        Game::withoutGlobalScopes()
+            ->where('season_id', $season->id)
+            ->where('half', 1)
+            ->update(['status' => MatchStatus::Finished->value]);
+
+        app(SeasonService::class)->advancePhase(['id' => $season->id]);
+        app(SeasonService::class)->advancePhase(['id' => $season->id]);
+
+        try {
+            app(SeasonService::class)->advancePhase(['id' => $season->id]);
+            $this->fail('Era esperado bloquear o encerramento com partidas pendentes no Segundo Turno.');
+        } catch (ApiException $exception) {
+            $this->assertSame(422, $exception->getCode());
+        }
+
+        $this->assertDatabaseHas('seasons', [
+            'id' => $season->id,
+            'phase' => LeaguePhase::SecondHalf->value,
+            'status' => SeasonStatus::Active->value,
+        ]);
+
+        Game::withoutGlobalScopes()
+            ->where('season_id', $season->id)
+            ->where('half', 2)
+            ->update(['status' => MatchStatus::Finished->value]);
+
+        app(SeasonService::class)->advancePhase(['id' => $season->id]);
+
+        $this->assertDatabaseHas('seasons', [
+            'id' => $season->id,
+            'phase' => LeaguePhase::Ended->value,
+            'status' => SeasonStatus::Closed->value,
+        ]);
     }
 
     public function test_a_participant_can_publish_and_edit_a_result_during_the_corresponding_half(): void
