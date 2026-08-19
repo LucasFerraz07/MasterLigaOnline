@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth.api', 'permission:club-identity.view')->group(function () {
     Route::get('/', [ClubIdentity::class, 'index']);
+    Route::get('/disponiveis', [ClubIdentity::class, 'availableClubs']);
     Route::get('/{id}', [ClubIdentity::class, 'show']);
 });
 

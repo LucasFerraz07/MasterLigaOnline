@@ -5,6 +5,7 @@ namespace App\Http\Controllers\ClubIdentity;
 use App\Builder\ReturnApi;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ClubIdentity\AvailableClubClubIdentityRequest;
 use App\Http\Requests\ClubIdentity\ChangeClubClubIdentityRequest;
 use App\Http\Requests\ClubIdentity\IndexClubIdentityRequest;
 use App\Http\Requests\ClubIdentity\ShowClubIdentityRequest;
@@ -26,6 +27,23 @@ class ClubIdentity extends Controller
         try {
             $data = $this->service->index($request->validated());
             return ReturnApi::success($data, 'Clubes listados com sucesso.');
+        } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
+            return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
+        }
+    }
+
+    #[Endpoint(operationId: 'availableClubsClubIdentity', title: 'Available Clubs', description: '**operationId:** `availableClubsClubIdentity` — Lista os clubes que ainda não estão vinculados a nenhum participante na liga do usuário autenticado. Em **200**, `data` segue o schema **ClubCollection** (paginado). Requer permissão: club-identity.view')]
+    public function availableClubs(AvailableClubClubIdentityRequest $request): JsonResponse
+    {
+        try {
+            $data = $this->service->availableClubs($request->validated());
+
+            return ReturnApi::success($data, 'Clubes disponíveis listados com sucesso.');
         } catch (ApiException $e) {
             /**
              * @status 400

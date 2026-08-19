@@ -5,6 +5,7 @@ namespace App\Services\ClubIdentity;
 use App\Enums\LeaguePhase;
 use App\Enums\UserType;
 use App\Exceptions\ApiException;
+use App\Http\Resources\Club\ClubCollection;
 use App\Http\Resources\ClubIdentity\ClubIdentityCollection;
 use App\Http\Resources\ClubIdentity\ClubIdentityResource;
 use App\Models\Club;
@@ -16,6 +17,34 @@ use Illuminate\Support\Facades\DB;
 
 class ClubIdentityService
 {
+    public function availableClubs(array $data): ClubCollection
+    {
+        $actor = Auth::user();
+        $leagueId = $actor->hasRole(UserType::SYSTEM_ADMIN->value)
+            ? ($data['league_id'] ?? null)
+            : $actor->league_id;
+
+        if ($leagueId === null) {
+            throw new ApiException('Informe a liga para listar os clubes disponíveis.', 422);
+        }
+
+        $page = $data['page'] ?? 1;
+        $perPage = $data['per_page'] ?? 10;
+        $search = $data['search'] ?? null;
+
+        $usedClubIds = ClubIdentity::withoutGlobalScopes()
+            ->where('league_id', $leagueId)
+            ->select('club_id');
+
+        $paginator = Club::query()
+            ->whereNotIn('id', $usedClubIds)
+            ->when($search, fn (Builder $query) => $query->where('name', 'ILIKE', "%{$search}%"))
+            ->orderBy('name')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        return new ClubCollection($paginator);
+    }
+
     public function index(array $data): ClubIdentityCollection
     {
         $actor = Auth::user();

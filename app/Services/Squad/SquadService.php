@@ -24,6 +24,8 @@ use Illuminate\Support\Facades\DB;
 
 class SquadService
 {
+    private const RELEASE_WINDOW_PHASES = [LeaguePhase::FirstWindow, LeaguePhase::MidWindow];
+
     public function index(array $data): SquadCollection
     {
         $actor = Auth::user();
@@ -172,6 +174,60 @@ class SquadService
             ]);
 
             return $this->show(['id' => $squad->id]);
+        });
+    }
+
+    /**
+     * Dispensa um jogador e o devolve ao mercado livre.
+     *
+     * A taxa de dispensa é metade do passe vigente do jogador no elenco.
+     */
+    public function releasePlayer(array $data): void
+    {
+        DB::transaction(function () use ($data): void {
+            $actor = Auth::user();
+
+            if ($actor->hasRole(UserType::SYSTEM_ADMIN->value)) {
+                throw new ApiException('system_admin não participa do mercado de transferências.', 403);
+            }
+
+            $leagueId = $actor->league_id;
+            $season = Season::currentFor($leagueId);
+
+            if ($season === null || ! in_array($season->phase, self::RELEASE_WINDOW_PHASES, true)) {
+                throw new ApiException('A dispensa de jogador só é permitida durante a Primeira ou a Última Janela.', 409);
+            }
+
+            $squad = Squad::query()
+                ->where('id', $data['id'])
+                ->where('league_id', $leagueId)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($squad->user_id !== $actor->id) {
+                throw new ApiException('Apenas o dono do elenco pode dispensar este jogador.', 403);
+            }
+
+            $actor = User::where('id', $actor->id)->lockForUpdate()->firstOrFail();
+            $fee = bcdiv($squad->passe, '2', 2);
+
+            if (bccomp($fee, (string) $actor->balance, 2) === 1) {
+                throw new ApiException('Saldo insuficiente para pagar a dispensa deste jogador.', 422);
+            }
+
+            $transactionType = TransactionType::where('name', 'player_release')->firstOrFail();
+
+            $actor->update(['balance' => bcsub((string) $actor->balance, $fee, 2)]);
+
+            FinancialTransaction::create([
+                'league_id' => $leagueId,
+                'user_id' => $actor->id,
+                'transaction_type_id' => $transactionType->id,
+                'amount' => $fee,
+                'description' => "Dispensa de jogador: {$squad->player->name}",
+            ]);
+
+            $squad->delete();
         });
     }
 

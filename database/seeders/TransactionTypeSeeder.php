@@ -19,6 +19,11 @@ class TransactionTypeSeeder extends Seeder
                 'operation' => 'debit',
             ],
             [
+                'name' => 'player_release',
+                'description' => 'Dispensa de jogador',
+                'operation' => 'debit',
+            ],
+            [
                 'name' => 'negotiation_purchase',
                 'description' => 'Compra por negociação',
                 'operation' => 'debit',
