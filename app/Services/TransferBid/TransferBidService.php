@@ -20,6 +20,7 @@ use App\Models\Transfer;
 use App\Models\TransferBid;
 use App\Models\TransferBidItem;
 use App\Models\User;
+use App\Services\Notification\NotificationService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -28,6 +29,10 @@ use Illuminate\Support\Facades\DB;
 class TransferBidService
 {
     private const OPEN_WINDOW_PHASES = [LeaguePhase::FirstWindow, LeaguePhase::MidWindow];
+
+    public function __construct(
+        private readonly NotificationService $notificationService,
+    ) {}
 
     public function index(array $data): TransferBidCollection
     {
@@ -110,6 +115,13 @@ class TransferBidService
             $this->createItems($bid->id, TransferSide::Proposer, $offeredPlayers, $offeredCash);
             $this->createItems($bid->id, TransferSide::Receiver, $requestedPlayers, $requestedCash);
 
+            $this->notificationService->createForUser(
+                userId: $receiver->id,
+                type: 'transfer_bid',
+                title: 'Nova proposta recebida',
+                body: "Você recebeu uma nova proposta de transferência de {$actor->username}.",
+            );
+
             return $this->show(['id' => $bid->id]);
         });
     }
@@ -162,26 +174,42 @@ class TransferBidService
 
             $bid->update(['status' => BidStatus::Accepted]);
 
+            $this->notificationService->createForUser(
+                userId: $proposer->id,
+                type: 'transfer_bid',
+                title: 'Proposta aceita',
+                body: 'Sua proposta de transferência foi aceita.',
+            );
+
             return $this->show(['id' => $bid->id]);
         });
     }
 
     public function reject(array $data): TransferBidResource
     {
-        $bid = TransferBid::findOrFail($data['id']);
-        $actor = Auth::user();
+        return DB::transaction(function () use ($data): TransferBidResource {
+            $bid = TransferBid::query()->lockForUpdate()->findOrFail($data['id']);
+            $actor = Auth::user();
 
-        if ($bid->receiver_id !== $actor->id && ! $actor->hasRole(UserType::SYSTEM_ADMIN->value)) {
-            throw new ApiException('Apenas o destinatário pode recusar esta proposta.', 403);
-        }
+            if ($bid->receiver_id !== $actor->id && ! $actor->hasRole(UserType::SYSTEM_ADMIN->value)) {
+                throw new ApiException('Apenas o destinatário pode recusar esta proposta.', 403);
+            }
 
-        if ($bid->status !== BidStatus::Pending) {
-            throw new ApiException('Esta proposta já foi finalizada.', 409);
-        }
+            if ($bid->status !== BidStatus::Pending) {
+                throw new ApiException('Esta proposta já foi finalizada.', 409);
+            }
 
-        $bid->update(['status' => BidStatus::Rejected]);
+            $bid->update(['status' => BidStatus::Rejected]);
 
-        return $this->show(['id' => $bid->id]);
+            $this->notificationService->createForUser(
+                userId: $bid->proposer_id,
+                type: 'transfer_bid',
+                title: 'Proposta rejeitada',
+                body: 'Sua proposta de transferência foi rejeitada.',
+            );
+
+            return $this->show(['id' => $bid->id]);
+        });
     }
 
     public function cancel(array $data): TransferBidResource
