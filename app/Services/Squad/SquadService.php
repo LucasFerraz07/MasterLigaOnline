@@ -227,6 +227,16 @@ class SquadService
                 'description' => "Dispensa de jogador: {$squad->player->name}",
             ]);
 
+            Transfer::create([
+                'league_id' => $leagueId,
+                'player_id' => $squad->player_id,
+                'seller_id' => $actor->id,
+                'buyer_id' => null,
+                'season_id' => $season->id,
+                'type' => TransferType::Release,
+                'amount' => $fee,
+            ]);
+
             $squad->delete();
         });
     }

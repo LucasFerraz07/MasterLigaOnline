@@ -20,7 +20,9 @@ use App\Models\TransactionType;
 use App\Models\User;
 use App\Services\League\LeagueService;
 use App\Services\Season\SeasonService;
+use App\Services\Squad\SquadService;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
@@ -66,6 +68,17 @@ class SquadLimitTest extends TestCase
             $table->string('user_type');
             $table->softDeletes();
             $table->timestamps();
+        });
+        Schema::create('roles', function (Blueprint $table): void {
+            $table->id();
+            $table->string('name');
+            $table->string('guard_name');
+            $table->timestamps();
+        });
+        Schema::create('model_has_roles', function (Blueprint $table): void {
+            $table->unsignedBigInteger('role_id');
+            $table->string('model_type');
+            $table->uuid('model_id');
         });
         Schema::create('players', function (Blueprint $table): void {
             $table->uuid('id')->primary();
@@ -161,11 +174,25 @@ class SquadLimitTest extends TestCase
             $table->string('description', 255)->nullable();
             $table->timestamps();
         });
+        Schema::create('transfers', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->uuid('league_id');
+            $table->uuid('bid_id')->nullable();
+            $table->uuid('player_id');
+            $table->uuid('seller_id')->nullable();
+            $table->uuid('buyer_id')->nullable();
+            $table->uuid('season_id');
+            $table->string('type', 20);
+            $table->decimal('amount', 12, 2);
+            $table->timestamps();
+        });
     }
 
     protected function tearDown(): void
     {
-        foreach (['notifications', 'financial_transactions', 'transaction_types', 'squads', 'matches', 'league_category_prices', 'seasons', 'owners', 'club_identities', 'players', 'users', 'leagues', 'subscriptions'] as $table) {
+        Auth::forgetUser();
+
+        foreach (['transfers', 'notifications', 'financial_transactions', 'transaction_types', 'squads', 'matches', 'league_category_prices', 'seasons', 'owners', 'club_identities', 'players', 'model_has_roles', 'roles', 'users', 'leagues', 'subscriptions'] as $table) {
             Schema::dropIfExists($table);
         }
 
@@ -231,6 +258,37 @@ class SquadLimitTest extends TestCase
             'type' => 'player_released_by_league_limit',
             'title' => 'Jogador liberado do elenco',
             'body' => 'O jogador Highest player foi liberado do seu elenco por exceder o limite definido pela liga.',
+        ]);
+    }
+
+    public function test_it_records_a_player_release_as_a_transfer_to_the_free_market(): void
+    {
+        [$league, $user, $season] = $this->createLeagueContext();
+        $player = $this->createPlayerInSquad($league, $user, 'Released player', 80);
+        $squad = Squad::withoutGlobalScopes()
+            ->where('league_id', $league->id)
+            ->where('player_id', $player->id)
+            ->firstOrFail();
+
+        $user->update(['balance' => '1000.00']);
+        TransactionType::create([
+            'name' => 'player_release',
+            'description' => 'Dispensa de jogador',
+            'operation' => 'debit',
+        ]);
+        Auth::setUser($user);
+
+        app(SquadService::class)->releasePlayer(['id' => $squad->id]);
+
+        $this->assertDatabaseMissing('squads', ['id' => $squad->id]);
+        $this->assertDatabaseHas('transfers', [
+            'league_id' => $league->id,
+            'player_id' => $player->id,
+            'seller_id' => $user->id,
+            'buyer_id' => null,
+            'season_id' => $season->id,
+            'type' => 'release',
+            'amount' => '500.00',
         ]);
     }
 
