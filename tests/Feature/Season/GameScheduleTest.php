@@ -86,6 +86,16 @@ class GameScheduleTest extends TestCase
             $table->string('phase', 30)->default('window_opening');
             $table->timestamps();
         });
+        Schema::create('notifications', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->uuid('user_id');
+            $table->string('type');
+            $table->string('title');
+            $table->string('body')->nullable();
+            $table->timestamp('read_at')->nullable();
+            $table->timestamp('expires_at')->nullable();
+            $table->timestamps();
+        });
         Schema::create('matches', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->uuid('league_id');
@@ -141,7 +151,7 @@ class GameScheduleTest extends TestCase
     {
         Auth::forgetUser();
 
-        foreach (['financial_transactions', 'transaction_types', 'squads', 'matches', 'seasons', 'club_identities', 'model_has_roles', 'roles', 'users', 'leagues'] as $table) {
+        foreach (['notifications', 'financial_transactions', 'transaction_types', 'squads', 'matches', 'seasons', 'club_identities', 'model_has_roles', 'roles', 'users', 'leagues'] as $table) {
             Schema::dropIfExists($table);
         }
 
@@ -182,6 +192,43 @@ class GameScheduleTest extends TestCase
             'id' => $season->id,
             'phase' => LeaguePhase::FirstHalf->value,
             'status' => SeasonStatus::Active->value,
+        ]);
+    }
+
+    public function test_it_notifies_all_league_users_when_the_phase_changes(): void
+    {
+        [$league, $season] = $this->createLeagueContext();
+        $participants = $this->createParticipants($league, 2);
+
+        app(SeasonService::class)->advancePhase(['id' => $season->id]);
+
+        foreach ($participants as $participant) {
+            $this->assertDatabaseHas('notifications', [
+                'user_id' => $participant->id,
+                'type' => 'season_phase_changed',
+                'title' => 'Fase da temporada alterada',
+                'body' => 'A temporada 1 avançou para a fase: Primeiro turno.',
+            ]);
+        }
+    }
+
+    public function test_it_notifies_all_league_users_when_a_season_is_created(): void
+    {
+        $league = League::create([
+            'name' => 'Liga de jogos',
+            'subscription_start' => now(),
+            'subscription_end' => now()->addYear(),
+        ]);
+        $participant = $this->createUser($league, UserType::USER);
+        Auth::setUser($participant);
+
+        app(SeasonService::class)->store(['league_id' => $league->id]);
+
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $participant->id,
+            'type' => 'season_created',
+            'title' => 'Nova temporada iniciada',
+            'body' => 'A temporada 1 foi iniciada.',
         ]);
     }
 

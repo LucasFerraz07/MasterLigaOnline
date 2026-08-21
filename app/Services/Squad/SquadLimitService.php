@@ -6,10 +6,15 @@ use App\Enums\Category;
 use App\Models\League;
 use App\Models\LeagueCategoryPrice;
 use App\Models\Squad;
+use App\Services\Notification\NotificationService;
 use Illuminate\Database\Eloquent\Collection;
 
 class SquadLimitService
 {
+    public function __construct(
+        private readonly NotificationService $notificationService,
+    ) {}
+
     /**
      * Libera jogadores dos elencos que excederem os limites configurados da liga.
      *
@@ -63,10 +68,22 @@ class SquadLimitService
             }
 
             if ($squadIdsToRelease !== []) {
+                $releasedSquadIds = array_unique($squadIdsToRelease);
+                $releasedSquads = $squads->whereIn('id', $releasedSquadIds);
+
                 Squad::withoutGlobalScopes()
                     ->where('league_id', $league->id)
-                    ->whereIn('id', array_unique($squadIdsToRelease))
+                    ->whereIn('id', $releasedSquadIds)
                     ->delete();
+
+                foreach ($releasedSquads as $releasedSquad) {
+                    $this->notificationService->createForUser(
+                        userId: $releasedSquad->user_id,
+                        type: 'player_released_by_league_limit',
+                        title: 'Jogador liberado do elenco',
+                        body: "O jogador {$releasedSquad->player_name} foi liberado do seu elenco por exceder o limite definido pela liga.",
+                    );
+                }
             }
         }
     }
@@ -77,6 +94,7 @@ class SquadLimitService
         $query = Squad::withoutGlobalScopes()
             ->select([
                 'squads.*',
+                'players.name as player_name',
                 'players.overall as player_overall',
                 'league_category_prices.category as player_category',
             ])

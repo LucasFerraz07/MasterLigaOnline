@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Squad\AdjustSalarySquadRequest;
 use App\Http\Requests\Squad\BuyFreeAgentSquadRequest;
 use App\Http\Requests\Squad\IndexSquadRequest;
+use App\Http\Requests\Squad\ReleasePlayerSquadRequest;
 use App\Http\Requests\Squad\ShowSquadRequest;
 use App\Services\Squad\SquadService;
 use Dedoc\Scramble\Attributes\Endpoint;
@@ -75,6 +76,22 @@ class Squad extends Controller
         try {
             $data = $this->service->buyFreeAgent($request->validated());
             return ReturnApi::success($data, 'Jogador contratado com sucesso.');
+        } catch (ApiException $e) {
+            /**
+             * @status 400
+             *
+             * @body array{error: true, message: string, data: mixed}
+             */
+            return ReturnApi::error($e->getMessage(), $e->data, $e->getCode());
+        }
+    }
+
+    #[Endpoint(operationId: 'releaseSquadPlayer', title: 'Release Squad Player', description: '**operationId:** `releaseSquadPlayer` — Dispensa um jogador do próprio elenco e o devolve ao mercado livre, cobrando metade do passe vigente. Restrito à Primeira ou Janela Intermediária. Em **200**, `data` é `null`. Requer permissão: squad.update')]
+    public function releasePlayer(ReleasePlayerSquadRequest $request): JsonResponse
+    {
+        try {
+            $this->service->releasePlayer($request->validated());
+            return ReturnApi::success(null, 'Jogador dispensado com sucesso.');
         } catch (ApiException $e) {
             /**
              * @status 400

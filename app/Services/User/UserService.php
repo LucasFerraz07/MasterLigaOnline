@@ -11,13 +11,15 @@ use App\Models\FinancialTransaction;
 use App\Models\TransactionType;
 use App\Models\User;
 use App\Services\ClubIdentity\ClubIdentityService;
+use App\Services\Notification\NotificationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class UserService
 {
     public function __construct(
-        private readonly ClubIdentityService $clubIdentityService
+        private readonly ClubIdentityService $clubIdentityService,
+        private readonly NotificationService $notificationService,
     ) {}
 
     public function index(array $data): UserCollection
@@ -56,10 +58,10 @@ class UserService
                 : $actor->league_id;
 
             $user = User::create([
-                'username'  => $data['username'],
-                'email'     => $data['email'],
-                'password'  => $data['password'],
-                'phone'     => $data['phone'],
+                'username' => $data['username'],
+                'email' => $data['email'],
+                'password' => $data['password'],
+                'phone' => $data['phone'],
                 'league_id' => $leagueId,
                 'user_type' => UserType::USER,
             ]);
@@ -79,20 +81,20 @@ class UserService
             $isLeagueAdmin = $actor->hasRole(UserType::LEAGUE_ADMIN->value);
             $user = User::findOrFail($data['id']);
 
-            if($actor->id != $data['id'] && !$isLeagueAdmin){
+            if ($actor->id != $data['id'] && ! $isLeagueAdmin) {
                 throw new ApiException('Você só pode editar seu próprio perfil', 403);
             }
 
             $userUpdateData = [
                 'username' => $data['username'] ?? $user->username,
-                'email'    => $data['email'] ?? $user->email,
+                'email' => $data['email'] ?? $user->email,
                 'password' => $data['password'] ?? $user->password,
-                'phone'    => $data['phone'] ?? $user->phone,
+                'phone' => $data['phone'] ?? $user->phone,
             ];
 
             $user->update($userUpdateData);
 
-            if ($isLeagueAdmin && !empty($data['role'])) {
+            if ($isLeagueAdmin && ! empty($data['role'])) {
                 $user->syncRoles([$data['role']]);
             }
 
@@ -140,6 +142,15 @@ class UserService
                 'amount' => $amount,
                 'description' => $data['description'] ?? ($operation === TransactionOperation::Credit ? 'Crédito manual' : 'Débito manual'),
             ]);
+
+            $operationLabel = $operation === TransactionOperation::Credit ? 'crédito' : 'débito';
+
+            $this->notificationService->createForUser(
+                userId: $targetUser->id,
+                type: "manual_balance_{$operation->value}",
+                title: 'Saldo ajustado',
+                body: "Foi realizado um {$operationLabel} manual de R$ {$amount} no seu saldo.",
+            );
 
             return new UserResource($targetUser->load('roles.permissions'));
         });

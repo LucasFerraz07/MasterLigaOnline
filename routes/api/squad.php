@@ -10,6 +10,7 @@ Route::middleware('auth.api', 'permission:squad.view')->group(function () {
 
 Route::middleware('auth.api', 'permission:squad.update', 'league.active')->group(function () {
     Route::put('/reajuste-salario/{id}', [Squad::class, 'adjustSalary']);
+    Route::delete('/dispensar-jogador/{id}', [Squad::class, 'releasePlayer']);
 });
 
 Route::middleware('auth.api', 'permission:squad.create', 'league.active')->group(function () {

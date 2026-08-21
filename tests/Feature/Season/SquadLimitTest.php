@@ -101,6 +101,16 @@ class SquadLimitTest extends TestCase
             $table->string('phase', 30)->default('window_opening');
             $table->timestamps();
         });
+        Schema::create('notifications', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->uuid('user_id');
+            $table->string('type');
+            $table->string('title');
+            $table->string('body')->nullable();
+            $table->timestamp('read_at')->nullable();
+            $table->timestamp('expires_at')->nullable();
+            $table->timestamps();
+        });
         Schema::create('matches', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->uuid('league_id');
@@ -155,7 +165,7 @@ class SquadLimitTest extends TestCase
 
     protected function tearDown(): void
     {
-        foreach (['financial_transactions', 'transaction_types', 'squads', 'matches', 'league_category_prices', 'seasons', 'owners', 'club_identities', 'players', 'users', 'leagues', 'subscriptions'] as $table) {
+        foreach (['notifications', 'financial_transactions', 'transaction_types', 'squads', 'matches', 'league_category_prices', 'seasons', 'owners', 'club_identities', 'players', 'users', 'leagues', 'subscriptions'] as $table) {
             Schema::dropIfExists($table);
         }
 
@@ -216,6 +226,12 @@ class SquadLimitTest extends TestCase
         $this->assertDatabaseMissing('squads', ['player_id' => $highest->id, 'league_id' => $league->id]);
         $this->assertDatabaseHas('squads', ['player_id' => $secondHighest->id, 'league_id' => $league->id]);
         $this->assertDatabaseHas('squads', ['player_id' => $kept->id, 'league_id' => $league->id]);
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $user->id,
+            'type' => 'player_released_by_league_limit',
+            'title' => 'Jogador liberado do elenco',
+            'body' => 'O jogador Highest player foi liberado do seu elenco por exceder o limite definido pela liga.',
+        ]);
     }
 
     public function test_it_applies_category_limits_after_the_total_limit(): void

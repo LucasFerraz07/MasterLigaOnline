@@ -17,6 +17,7 @@ use App\Models\Squad;
 use App\Models\TransactionType;
 use App\Models\User;
 use App\Services\Game\GameScheduleService;
+use App\Services\Notification\NotificationService;
 use App\Services\Squad\SquadLimitService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +26,8 @@ class SeasonService
 {
     public function __construct(
         private readonly SquadLimitService $squadLimitService,
-        private readonly GameScheduleService $gameScheduleService
+        private readonly GameScheduleService $gameScheduleService,
+        private readonly NotificationService $notificationService,
     ) {}
 
     public function index(array $data): SeasonCollection
@@ -77,6 +79,13 @@ class SeasonService
                 'phase' => LeaguePhase::WindowOpening,
             ]);
 
+            $this->notifyLeagueUsers(
+                season: $season,
+                type: 'season_created',
+                title: 'Nova temporada iniciada',
+                body: "A temporada {$season->season_number} foi iniciada.",
+            );
+
             return new SeasonResource($season);
         });
     }
@@ -123,8 +132,36 @@ class SeasonService
                 'status' => $status,
             ]);
 
+            $this->notifyLeagueUsers(
+                season: $season,
+                type: 'season_phase_changed',
+                title: 'Fase da temporada alterada',
+                body: "A temporada {$season->season_number} avançou para a fase: {$this->phaseLabel($phase)}.",
+            );
+
             return new SeasonResource($season);
         });
+    }
+
+    private function notifyLeagueUsers(Season $season, string $type, string $title, string $body): void
+    {
+        $userIds = User::withoutGlobalScopes()
+            ->where('league_id', $season->league_id)
+            ->pluck('id');
+
+        $this->notificationService->createForUsers($userIds, $type, $title, $body);
+    }
+
+    private function phaseLabel(LeaguePhase $phase): string
+    {
+        return match ($phase) {
+            LeaguePhase::WindowOpening => 'Janela de abertura',
+            LeaguePhase::FirstWindow => 'Primeira janela de transferências',
+            LeaguePhase::FirstHalf => 'Primeiro turno',
+            LeaguePhase::MidWindow => 'Janela intermediária',
+            LeaguePhase::SecondHalf => 'Segundo turno',
+            LeaguePhase::Ended => 'Temporada encerrada',
+        };
     }
 
     /**
