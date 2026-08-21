@@ -2,6 +2,7 @@
 
 namespace App\Services\Notification;
 
+use App\Enums\NotificationType;
 use App\Http\Resources\Notification\NotificationCollection;
 use App\Http\Resources\Notification\NotificationResource;
 use App\Models\Notification;
@@ -11,7 +12,7 @@ class NotificationService
 {
     public function createForUser(
         string $userId,
-        string $type,
+        NotificationType $type,
         string $title,
         ?string $body = null,
     ): Notification {
@@ -28,7 +29,7 @@ class NotificationService
      */
     public function createForUsers(
         iterable $userIds,
-        string $type,
+        NotificationType $type,
         string $title,
         ?string $body = null,
     ): void {

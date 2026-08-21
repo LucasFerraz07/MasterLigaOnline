@@ -4,6 +4,7 @@ namespace App\Services\Season;
 
 use App\Enums\LeaguePhase;
 use App\Enums\MatchStatus;
+use App\Enums\NotificationType;
 use App\Enums\SeasonStatus;
 use App\Enums\UserType;
 use App\Exceptions\ApiException;
@@ -81,7 +82,7 @@ class SeasonService
 
             $this->notifyLeagueUsers(
                 season: $season,
-                type: 'season_created',
+                type: NotificationType::SeasonCreated,
                 title: 'Nova temporada iniciada',
                 body: "A temporada {$season->season_number} foi iniciada.",
             );
@@ -134,7 +135,7 @@ class SeasonService
 
             $this->notifyLeagueUsers(
                 season: $season,
-                type: 'season_phase_changed',
+                type: NotificationType::SeasonPhaseChanged,
                 title: 'Fase da temporada alterada',
                 body: "A temporada {$season->season_number} avançou para a fase: {$this->phaseLabel($phase)}.",
             );
@@ -143,7 +144,7 @@ class SeasonService
         });
     }
 
-    private function notifyLeagueUsers(Season $season, string $type, string $title, string $body): void
+    private function notifyLeagueUsers(Season $season, NotificationType $type, string $title, string $body): void
     {
         $userIds = User::withoutGlobalScopes()
             ->where('league_id', $season->league_id)

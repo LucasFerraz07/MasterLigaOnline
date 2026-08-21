@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Notification;
 
+use App\Enums\NotificationType;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -12,9 +13,12 @@ class NotificationResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        /** @var NotificationType $type */
+        $type = $this->type;
+
         return [
             'id' => $this->id,
-            'type' => $this->type,
+            'type' => $type,
             'title' => $this->title,
             'body' => $this->body,
             'read_at' => $this->read_at?->toISOString(),

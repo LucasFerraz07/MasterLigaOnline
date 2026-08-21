@@ -4,6 +4,7 @@ namespace App\Services\TransferBid;
 
 use App\Enums\BidStatus;
 use App\Enums\LeaguePhase;
+use App\Enums\NotificationType;
 use App\Enums\TransferItemType;
 use App\Enums\TransferSide;
 use App\Enums\TransferType;
@@ -117,7 +118,7 @@ class TransferBidService
 
             $this->notificationService->createForUser(
                 userId: $receiver->id,
-                type: 'transfer_bid',
+                type: NotificationType::TransferBid,
                 title: 'Nova proposta recebida',
                 body: "Você recebeu uma nova proposta de transferência de {$actor->username}.",
             );
@@ -176,7 +177,7 @@ class TransferBidService
 
             $this->notificationService->createForUser(
                 userId: $proposer->id,
-                type: 'transfer_bid',
+                type: NotificationType::TransferBid,
                 title: 'Proposta aceita',
                 body: 'Sua proposta de transferência foi aceita.',
             );
@@ -203,7 +204,7 @@ class TransferBidService
 
             $this->notificationService->createForUser(
                 userId: $bid->proposer_id,
-                type: 'transfer_bid',
+                type: NotificationType::TransferBid,
                 title: 'Proposta rejeitada',
                 body: 'Sua proposta de transferência foi rejeitada.',
             );

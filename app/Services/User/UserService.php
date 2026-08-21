@@ -2,6 +2,7 @@
 
 namespace App\Services\User;
 
+use App\Enums\NotificationType;
 use App\Enums\TransactionOperation;
 use App\Enums\UserType;
 use App\Exceptions\ApiException;
@@ -144,10 +145,13 @@ class UserService
             ]);
 
             $operationLabel = $operation === TransactionOperation::Credit ? 'crédito' : 'débito';
+            $notificationType = $operation === TransactionOperation::Credit
+                ? NotificationType::ManualBalanceCredit
+                : NotificationType::ManualBalanceDebit;
 
             $this->notificationService->createForUser(
                 userId: $targetUser->id,
-                type: "manual_balance_{$operation->value}",
+                type: $notificationType,
                 title: 'Saldo ajustado',
                 body: "Foi realizado um {$operationLabel} manual de R$ {$amount} no seu saldo.",
             );

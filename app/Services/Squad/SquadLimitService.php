@@ -3,6 +3,7 @@
 namespace App\Services\Squad;
 
 use App\Enums\Category;
+use App\Enums\NotificationType;
 use App\Models\League;
 use App\Models\LeagueCategoryPrice;
 use App\Models\Squad;
@@ -79,7 +80,7 @@ class SquadLimitService
                 foreach ($releasedSquads as $releasedSquad) {
                     $this->notificationService->createForUser(
                         userId: $releasedSquad->user_id,
-                        type: 'player_released_by_league_limit',
+                        type: NotificationType::PlayerReleasedByLeagueLimit,
                         title: 'Jogador liberado do elenco',
                         body: "O jogador {$releasedSquad->player_name} foi liberado do seu elenco por exceder o limite definido pela liga.",
                     );
