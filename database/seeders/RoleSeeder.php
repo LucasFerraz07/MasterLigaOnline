@@ -57,6 +57,7 @@ class RoleSeeder extends Seeder
             // Jogadores
             'player.view',
             'player.update',
+            'player.import',
             // Escalação
             'squad.view',
             'squad.create',
