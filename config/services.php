@@ -41,4 +41,8 @@ return [
         'webhook_secret' => env('ABACATE_PAY_WEBHOOK_SECRET'),
     ],
 
+    'player_import' => [
+        'token' => env('PLAYER_IMPORT_TOKEN'),
+    ],
+
 ];

@@ -94,7 +94,18 @@ php artisan players:import {caminho-do-csv}
 
 ### Sincronização automática semanal
 
-O CSV é gerado pelo repositório `efootballDBWebScraping` (scraping + tratamento dos dados do eFootball), em um diretório separado deste projeto. O script [scripts/sync_players_weekly.sh](scripts/sync_players_weekly.sh) roda o scraping, o tratamento e em seguida o `players:import`, e está agendado via cron para todo domingo às 03:00:
+O CSV é gerado pelo repositório `efootballDBWebScraping` (scraping + tratamento dos dados do eFootball), em um diretório separado deste projeto. O script [scripts/sync_players_weekly.sh](scripts/sync_players_weekly.sh) roda o scraping, o tratamento e envia o CSV ao endpoint privado da API.
+
+Antes de executá-lo, defina:
+
+```bash
+export PLAYER_IMPORT_URL="https://api.exemplo.com/api/webhooks/players/import"
+export PLAYER_IMPORT_TOKEN="token-configurado-na-api"
+```
+
+O endpoint exige o header `X-Player-Import-Token` e aceita o CSV no campo multipart `file`.
+
+Exemplo de agendamento local para todo domingo às 03:00:
 
 ```
 0 3 * * 0 /home/lucas/Documentos/MasterLigaOnline/scripts/sync_players_weekly.sh >> storage/logs/sync_players.log 2>&1
