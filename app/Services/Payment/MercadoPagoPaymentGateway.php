@@ -30,7 +30,10 @@ class MercadoPagoPaymentGateway implements PaymentGateway
             'description' => "Contratação Master Liga #{$payment->checkout_id}",
             'external_reference' => (string) $payment->id,
             'notification_url' => config('services.mercado_pago.notification_url'),
-            'date_of_expiration' => $payment->checkout->expires_at->toIso8601String(),
+            'date_of_expiration' => $payment->checkout->expires_at
+                ->copy()
+                ->setTimezone('America/Sao_Paulo')
+                ->format('Y-m-d\\TH:i:s.000P'),
             'payment_method_id' => 'pix',
             'payer' => $payer,
         ], $options);
