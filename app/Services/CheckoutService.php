@@ -8,6 +8,7 @@ use App\Enums\CheckoutType;
 use App\Enums\PaymentStatus;
 use App\Exceptions\ApiException;
 use App\Models\Checkout;
+use App\Models\Payment;
 use App\Models\PlanPrice;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -99,16 +100,27 @@ class CheckoutService
             $remote = $this->gateway->createPix($payment, ['email' => $user->email, 'identification' => $data['payment']['payer']['identification']]);
         } catch (MPApiException $e) {
             $retryable = $e->getStatusCode() === 429 || $e->getStatusCode() >= 500;
+            $apiResponse = $e->getApiResponse();
             Log::warning($retryable ? 'mercado_pago.payment.unknown' : 'mercado_pago.payment.rejected', [
+                'provider' => 'mercado_pago',
+                'operation' => 'payments.create_pix',
                 'checkout_id' => $checkout->id,
                 'payment_id' => $payment->id,
-                'gateway_status' => $e->getStatusCode(),
+                'gateway_http_status' => $apiResponse->getStatusCode(),
+                'gateway_error' => $this->mercadoPagoErrorContext($apiResponse->getContent()),
+                'request' => [
+                    'amount_cents' => $payment->amount_cents,
+                    'currency' => $payment->currency,
+                    'payment_method_id' => 'pix',
+                    'identification_type' => $data['payment']['payer']['identification']['type'],
+                    'payer_email_present' => filled($user->email),
+                    'notification_url_configured' => filled(config('services.mercado_pago.notification_url')),
+                    'expires_at' => $payment->checkout->expires_at?->toIso8601String(),
+                    'gateway_idempotency_key_hash' => $this->idempotencyKeyHash($payment->gateway_idempotency_key),
+                ],
                 'exception' => $e::class,
             ]);
-            $payment->update([
-                'status' => $retryable ? PaymentStatus::UNKNOWN : PaymentStatus::REJECTED,
-                'status_detail' => $retryable ? 'gateway_unavailable' : 'gateway_rejected',
-            ]);
+            $this->markGatewayFailure($payment, $retryable);
 
             return $checkout->refresh()->load('payments');
         } catch (\Throwable $e) {
@@ -127,5 +139,113 @@ class CheckoutService
         $this->reconciliation->apply($payment, $remote);
 
         return $checkout->refresh()->load('payments');
+    }
+
+    /**
+     * Extrai somente campos diagnósticos conhecidos da resposta do gateway.
+     * O corpo completo pode conter dados do pagador e nunca deve ser registrado.
+     *
+     * @param array<string,mixed> $body
+     * @return array<string,mixed>
+     */
+    private function mercadoPagoErrorContext(array $body): array
+    {
+        $causes = $body['cause'] ?? [];
+        if (! is_array($causes)) {
+            $causes = [];
+        }
+        if (! array_is_list($causes)) {
+            $causes = [$causes];
+        }
+
+        return [
+            'type' => $this->safeGatewayCode($body['error'] ?? $body['type'] ?? null),
+            'code' => $this->safeGatewayCode($body['code'] ?? null),
+            'message' => $this->safeGatewayText($body['message'] ?? null),
+            'causes' => collect($causes)
+                ->filter(fn (mixed $cause) => is_array($cause))
+                ->map(fn (array $cause) => array_filter([
+                    'type' => $this->safeGatewayCode($cause['type'] ?? null),
+                    'code' => $this->safeGatewayCode($cause['code'] ?? null),
+                    'message' => $this->safeGatewayText($cause['message'] ?? $cause['description'] ?? null),
+                ], fn (mixed $value) => $value !== null))
+                ->filter()
+                ->values()
+                ->all(),
+        ];
+    }
+
+    private function safeGatewayCode(mixed $value): int|string|null
+    {
+        if (is_int($value)) {
+            return $value;
+        }
+
+        if (! is_string($value)) {
+            return null;
+        }
+
+        $value = trim($value);
+
+        return preg_match('/^[a-zA-Z0-9_.-]{1,120}$/', $value) ? $value : null;
+    }
+
+    private function safeGatewayText(mixed $value): ?string
+    {
+        if (! is_scalar($value)) {
+            return null;
+        }
+
+        $text = trim(strip_tags((string) $value));
+        if ($text === '') {
+            return null;
+        }
+
+        $text = preg_replace([
+            '/\b\d{11,14}\b/',
+            '/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i',
+            '/\b(?:Bearer\s+|APP_USR-|TEST-)[A-Za-z0-9._-]+/i',
+        ], ['[redacted-document]', '[redacted-email]', '[redacted-credential]'], $text);
+
+        return Str::limit($text ?? '[redacted]', 500, '...');
+    }
+
+    private function idempotencyKeyHash(string $key): string
+    {
+        return substr(hash_hmac('sha256', $key, (string) config('app.key')), 0, 16);
+    }
+
+    private function markGatewayFailure(Payment $payment, bool $retryable): void
+    {
+        DB::transaction(function () use ($payment, $retryable) {
+            $payment = Payment::lockForUpdate()->findOrFail($payment->id);
+            $payment->update([
+                'status' => $retryable ? PaymentStatus::UNKNOWN : PaymentStatus::REJECTED,
+                'status_detail' => $retryable ? 'gateway_unavailable' : 'gateway_rejected',
+            ]);
+
+            if ($retryable) {
+                return;
+            }
+
+            $checkout = $payment->checkout()->lockForUpdate()->firstOrFail();
+            $hasActivePayment = $checkout->payments()
+                ->whereKeyNot($payment->id)
+                ->whereIn('status', [
+                    PaymentStatus::CREATING->value,
+                    PaymentStatus::PENDING->value,
+                    PaymentStatus::IN_PROCESS->value,
+                    PaymentStatus::UNKNOWN->value,
+                ])
+                ->exists();
+
+            if (! $hasActivePayment && $checkout->status === CheckoutStatus::PAYMENT_PENDING) {
+                $checkout->update([
+                    'status' => $checkout->expires_at->isPast()
+                        ? CheckoutStatus::EXPIRED
+                        : CheckoutStatus::OPEN,
+                ]);
+            }
+        });
     }
 }

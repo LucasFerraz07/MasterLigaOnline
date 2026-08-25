@@ -18,7 +18,11 @@ use App\Services\PaymentReconciliationService;
 use App\Services\PlanService;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Log\Events\MessageLogged;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
+use MercadoPago\Exceptions\MPApiException;
+use MercadoPago\Net\MPResponse;
 use Tests\Fakes\FakePaymentGateway;
 use Tests\TestCase;
 
@@ -78,6 +82,62 @@ class CheckoutFlowTest extends TestCase
         $this->assertSame($gatewayKey, $second->payments->first()->gateway_idempotency_key);
         $this->assertSame(2, $this->gateway->calls);
         $this->assertDatabaseCount('payments', 1);
+    }
+
+    public function test_mercado_pago_api_error_is_logged_with_diagnostics_and_without_payer_data(): void
+    {
+        $logged = [];
+        Log::listen(function (MessageLogged $event) use (&$logged): void {
+            $logged[] = $event;
+        });
+        $this->app->instance(PaymentGateway::class, new class implements PaymentGateway
+        {
+            public function createPix(\App\Models\Payment $payment, array $payer): GatewayPayment
+            {
+                throw new MPApiException('API error', new MPResponse(422, [
+                    'error' => 'bad_request',
+                    'message' => 'CPF 19119119100 belongs to buyer@example.test',
+                    'cause' => [[
+                        'code' => 1234,
+                        'description' => 'Invalid CPF 19119119100 for buyer@example.test',
+                    ]],
+                ]));
+            }
+
+            public function get(string $externalId): GatewayPayment
+            {
+                throw new \LogicException('Not used by this test.');
+            }
+        });
+
+        $service = app(CheckoutService::class);
+        $checkout = $service->create($this->user, [
+            'idempotency_key' => (string) str()->uuid(),
+            'plan_price_id' => $this->price->id,
+            'league_name' => 'Liga',
+            'owner_full_name' => 'Responsável',
+        ]);
+
+        $result = $service->pay($this->user, $checkout, [
+            'idempotency_key' => (string) str()->uuid(),
+            'payment' => [
+                'payment_method_id' => 'pix',
+                'payer' => ['identification' => ['type' => 'CPF', 'number' => '19119119100']],
+            ],
+        ]);
+
+        $this->assertSame(PaymentStatus::REJECTED, $result->payments->first()->status);
+        $this->assertSame(CheckoutStatus::OPEN, $result->status);
+
+        $entry = collect($logged)->first(fn (MessageLogged $event) => $event->message === 'mercado_pago.payment.rejected');
+        $this->assertNotNull($entry);
+        $this->assertSame(422, $entry->context['gateway_http_status']);
+        $this->assertSame('bad_request', $entry->context['gateway_error']['type']);
+        $this->assertSame(1234, $entry->context['gateway_error']['causes'][0]['code']);
+        $this->assertStringContainsString('[redacted-document]', $entry->context['gateway_error']['message']);
+        $this->assertStringContainsString('[redacted-email]', $entry->context['gateway_error']['message']);
+        $this->assertStringNotContainsString('19119119100', json_encode($entry->context));
+        $this->assertStringNotContainsString('buyer@example.test', json_encode($entry->context));
     }
 
     public function test_approved_payment_leaves_checkout_paid_until_provisioning_finishes(): void
