@@ -6,6 +6,9 @@ use App\Scramble\ValidationExceptionToResponseExtension;
 use Dedoc\Scramble\SecurityDocumentation\MiddlewareAuthSecurityStrategy;
 
 return [
+    // Exibe a interface e a especificação OpenAPI publicamente, inclusive em produção.
+    'middleware' => [],
+
     'extensions' => [
         ValidationExceptionToResponseExtension::class,
         NotFoundExceptionToResponseExtension::class,
