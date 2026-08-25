@@ -1,0 +1,67 @@
+# Recurso Coolify exclusivo para os processos em segundo plano do Laravel.
+# Não configure domínio nem portas para este Compose.
+
+x-laravel-environment: &laravel-environment
+  APP_NAME: "${APP_NAME:-MasterLigaOnline}"
+  APP_ENV: "${APP_ENV:-production}"
+  APP_KEY: "${APP_KEY:?}"
+  APP_DEBUG: "${APP_DEBUG:-false}"
+  APP_URL: "${APP_URL:-}"
+  FRONTEND_URL: "${FRONTEND_URL:-}"
+
+  LOG_CHANNEL: "${LOG_CHANNEL:-stderr}"
+  LOG_LEVEL: "${LOG_LEVEL:-warning}"
+
+  # A aplicação usa a URL única, mas o driver precisa ser PostgreSQL.
+  DB_CONNECTION: "pgsql"
+  DB_URL: "${DB_URL:?}"
+
+  CACHE_STORE: "${CACHE_STORE:-database}"
+  SESSION_DRIVER: "${SESSION_DRIVER:-database}"
+  QUEUE_CONNECTION: "${QUEUE_CONNECTION:-database}"
+  DB_QUEUE: "${DB_QUEUE:-default}"
+  DB_QUEUE_RETRY_AFTER: "${DB_QUEUE_RETRY_AFTER:-90}"
+
+  MERCADO_PAGO_ACCESS_TOKEN: "${MERCADO_PAGO_ACCESS_TOKEN:?}"
+  MERCADO_PAGO_WEBHOOK_SECRET: "${MERCADO_PAGO_WEBHOOK_SECRET:-}"
+  MERCADO_PAGO_NOTIFICATION_URL: "${MERCADO_PAGO_NOTIFICATION_URL:-}"
+
+x-laravel-worker: &laravel-worker
+  build:
+    context: .
+    dockerfile: Dockerfile
+  environment: *laravel-environment
+  restart: unless-stopped
+  init: true
+  stop_grace_period: 90s
+
+services:
+  queue:
+    <<: *laravel-worker
+    command:
+      - php
+      - artisan
+      - queue:work
+      - --sleep=3
+      - --tries=5
+      - --timeout=60
+      - --max-time=3600
+      - --no-interaction
+    user: www-data
+    # O healthcheck da imagem consulta /up, que só existe no container HTTP.
+    healthcheck:
+      test: ["NONE"]
+    exclude_from_hc: true
+
+  scheduler:
+    <<: *laravel-worker
+    command:
+      - php
+      - artisan
+      - schedule:work
+      - --verbose
+      - --no-interaction
+    user: www-data
+    healthcheck:
+      test: ["NONE"]
+    exclude_from_hc: true
