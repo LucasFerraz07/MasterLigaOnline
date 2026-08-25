@@ -30,6 +30,7 @@ WORKDIR /app
 
 # Copia a aplicação e as dependências de produção, sem a ferramenta Composer.
 COPY --from=vendor /app /app
+RUN php artisan storage:link
 
 # Laravel precisa escrever logs, caches, sessões e arquivos enviados.
 RUN chown -R www-data:www-data storage bootstrap/cache
