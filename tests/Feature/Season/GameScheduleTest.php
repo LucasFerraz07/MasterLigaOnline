@@ -39,9 +39,6 @@ class GameScheduleTest extends TestCase
             $table->decimal('win_credit', 12, 2)->default(55000);
             $table->decimal('draw_credit', 12, 2)->default(17000);
             $table->decimal('loss_credit', 12, 2)->default(3000);
-            $table->uuid('subscription_id')->nullable();
-            $table->date('subscription_start');
-            $table->date('subscription_end');
             $table->timestamp('deactivated_at')->nullable();
             $table->softDeletes();
             $table->timestamps();
@@ -216,8 +213,6 @@ class GameScheduleTest extends TestCase
     {
         $league = League::create([
             'name' => 'Liga de jogos',
-            'subscription_start' => now(),
-            'subscription_end' => now()->addYear(),
         ]);
         $participant = $this->createUser($league, UserType::USER);
         Auth::setUser($participant);
@@ -481,8 +476,6 @@ class GameScheduleTest extends TestCase
     {
         $league = League::create([
             'name' => 'Liga de jogos',
-            'subscription_start' => now(),
-            'subscription_end' => now()->addYear(),
         ]);
         $season = Season::create([
             'league_id' => $league->id,

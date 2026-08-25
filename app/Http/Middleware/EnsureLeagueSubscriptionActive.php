@@ -17,7 +17,7 @@ class EnsureLeagueSubscriptionActive
         $user = Auth::user();
 
         if ($user && ! $user->hasRole(UserType::SYSTEM_ADMIN->value) && $user->league_id) {
-            $league = League::find($user->league_id);
+            $league = League::with('leagueSubscription')->find($user->league_id);
 
             if ($league && ! $league->is_active) {
                 return ReturnApi::error('A assinatura da liga está vencida. Renove para continuar.', null, 402);

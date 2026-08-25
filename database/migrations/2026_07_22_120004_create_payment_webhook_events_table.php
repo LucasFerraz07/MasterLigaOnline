@@ -10,13 +10,20 @@ return new class extends Migration
     {
         Schema::create('payment_webhook_events', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('event');
-            $table->string('external_id');
+            $table->string('provider')->default('mercado_pago');
+            $table->string('provider_event_id');
+            $table->string('resource_type')->default('payment');
+            $table->string('resource_id');
+            $table->string('request_id')->nullable();
+            $table->string('payload_hash', 64);
             $table->json('payload');
+            $table->string('status')->default('pending');
+            $table->unsignedSmallInteger('attempts')->default(0);
+            $table->text('last_error')->nullable();
             $table->timestamp('processed_at')->nullable();
             $table->timestamps();
-
-            $table->unique(['event', 'external_id']);
+            $table->unique(['provider', 'provider_event_id']);
+            $table->unique(['provider', 'payload_hash']);
         });
     }
 

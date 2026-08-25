@@ -21,14 +21,14 @@ return new class extends Migration
     public function up(): void
     {
         foreach ($this->tables as $table) {
-            Schema::table($table, function (Blueprint $blueprint) use ($table): void {
-                $blueprint->dropForeign("{$table}_league_id_foreign");
+            Schema::table($table, function (Blueprint $blueprint): void {
+                $blueprint->dropForeign(['league_id']);
                 $blueprint->foreign('league_id')->references('id')->on('leagues')->cascadeOnDelete();
             });
         }
 
         Schema::table('users', function (Blueprint $blueprint): void {
-            $blueprint->dropForeign('users_league_id_foreign');
+            $blueprint->dropForeign(['league_id']);
             $blueprint->foreign('league_id')->references('id')->on('leagues')->cascadeOnDelete();
         });
     }
@@ -36,14 +36,14 @@ return new class extends Migration
     public function down(): void
     {
         foreach ($this->tables as $table) {
-            Schema::table($table, function (Blueprint $blueprint) use ($table): void {
-                $blueprint->dropForeign("{$table}_league_id_foreign");
+            Schema::table($table, function (Blueprint $blueprint): void {
+                $blueprint->dropForeign(['league_id']);
                 $blueprint->foreign('league_id')->references('id')->on('leagues');
             });
         }
 
         Schema::table('users', function (Blueprint $blueprint): void {
-            $blueprint->dropForeign('users_league_id_foreign');
+            $blueprint->dropForeign(['league_id']);
             $blueprint->foreign('league_id')->references('id')->on('leagues')->nullOnDelete();
         });
     }

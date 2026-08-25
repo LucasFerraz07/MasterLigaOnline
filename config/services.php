@@ -35,10 +35,10 @@ return [
         ],
     ],
 
-    'abacate_pay' => [
-        'base_url' => env('ABACATE_PAY_BASE_URL', 'https://api.abacatepay.com/v2'),
-        'api_key' => env('ABACATE_PAY_API_KEY'),
-        'webhook_secret' => env('ABACATE_PAY_WEBHOOK_SECRET'),
+    'mercado_pago' => [
+        'access_token' => env('MERCADO_PAGO_ACCESS_TOKEN'),
+        'webhook_secret' => env('MERCADO_PAGO_WEBHOOK_SECRET'),
+        'notification_url' => env('MERCADO_PAGO_NOTIFICATION_URL'),
     ],
 
     'player_import' => [

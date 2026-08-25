@@ -15,7 +15,6 @@ use App\Models\LeagueCategoryPrice;
 use App\Models\Player;
 use App\Models\Season;
 use App\Models\Squad;
-use App\Models\Subscription;
 use App\Models\TransactionType;
 use App\Models\User;
 use App\Services\League\LeagueService;
@@ -32,13 +31,6 @@ class SquadLimitTest extends TestCase
     {
         parent::setUp();
 
-        Schema::create('subscriptions', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->string('name');
-            $table->unsignedTinyInteger('user_limit')->nullable();
-            $table->decimal('price', 10, 2);
-            $table->timestamps();
-        });
         Schema::create('leagues', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->string('name');
@@ -50,9 +42,6 @@ class SquadLimitTest extends TestCase
             $table->decimal('win_credit', 12, 2)->default(55000);
             $table->decimal('draw_credit', 12, 2)->default(17000);
             $table->decimal('loss_credit', 12, 2)->default(3000);
-            $table->uuid('subscription_id')->nullable();
-            $table->date('subscription_start');
-            $table->date('subscription_end');
             $table->timestamp('deactivated_at')->nullable();
             $table->softDeletes();
             $table->timestamps();
@@ -67,6 +56,13 @@ class SquadLimitTest extends TestCase
             $table->decimal('balance', 12, 2)->default(0);
             $table->string('user_type');
             $table->softDeletes();
+            $table->timestamps();
+        });
+        Schema::create('league_subscriptions', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->uuid('league_id');
+            $table->string('status');
+            $table->timestamp('access_expires_at');
             $table->timestamps();
         });
         Schema::create('roles', function (Blueprint $table): void {
@@ -192,7 +188,7 @@ class SquadLimitTest extends TestCase
     {
         Auth::forgetUser();
 
-        foreach (['transfers', 'notifications', 'financial_transactions', 'transaction_types', 'squads', 'matches', 'league_category_prices', 'seasons', 'owners', 'club_identities', 'players', 'model_has_roles', 'roles', 'users', 'leagues', 'subscriptions'] as $table) {
+        foreach (['transfers', 'notifications', 'financial_transactions', 'transaction_types', 'squads', 'matches', 'league_category_prices', 'seasons', 'owners', 'club_identities', 'players', 'model_has_roles', 'roles', 'league_subscriptions', 'users', 'leagues'] as $table) {
             Schema::dropIfExists($table);
         }
 
@@ -432,15 +428,8 @@ class SquadLimitTest extends TestCase
     /** @return array{League, User, Season} */
     private function createLeagueContext(array $limits = []): array
     {
-        $subscription = Subscription::create([
-            'name' => 'Plano de teste',
-            'price' => '10.00',
-        ]);
         $league = League::create([
             'name' => 'Liga de teste',
-            'subscription_id' => $subscription->id,
-            'subscription_start' => now(),
-            'subscription_end' => now()->addYear(),
             ...$limits,
         ]);
         $user = User::create([

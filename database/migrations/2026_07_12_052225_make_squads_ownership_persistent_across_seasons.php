@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('squads', function (Blueprint $table) {
             $table->dropIndex('squads_league_user_season_index');
             $table->dropUnique('squads_player_id_season_id_unique');
-            $table->dropForeign('squads_season_id_foreign');
+            $table->dropForeign(['season_id']);
             $table->dropColumn('season_id');
         });
 

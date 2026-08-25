@@ -11,7 +11,6 @@ use App\Models\LeagueCategoryPrice;
 use App\Models\Owner;
 use App\Models\User;
 use App\Services\ClubIdentity\ClubIdentityService;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class LeagueService
@@ -28,7 +27,7 @@ class LeagueService
         $trashed = $data['with_trashed'] ?? null;
 
         $query = League::query()
-            ->with(['owners.user', 'subscription'])
+            ->with(['owners.user', 'leagueSubscription.currentPlan'])
             ->when($trashed, fn ($query) => $query->withTrashed())
             ->when($search, function ($query) use ($search): void {
                 $query->where('name', 'ILIKE', "%{$search}%");
@@ -42,7 +41,7 @@ class LeagueService
 
     public function show(array $data): LeagueResource
     {
-        $league = League::with(['owners.user', 'subscription'])->findOrFail($data['id']);
+        $league = League::with(['owners.user', 'leagueSubscription.currentPlan'])->findOrFail($data['id']);
 
         return new LeagueResource($league);
     }
@@ -60,7 +59,7 @@ class LeagueService
 
             $league = $this->provisionLeagueForUser($user, $data);
 
-            $league->load(['owners.user', 'subscription']);
+            $league->load(['owners.user', 'leagueSubscription.currentPlan']);
 
             return new LeagueResource($league);
         });
@@ -76,9 +75,6 @@ class LeagueService
         return DB::transaction(function () use ($user, $data): League {
             $league = League::create([
                 'name' => $data['name'],
-                'subscription_id' => $data['subscription_id'] ?? null,
-                'subscription_start' => now(),
-                'subscription_end' => $this->calculateSubscriptionEnd($data['subscription_duration'] ?? null),
             ]);
 
             $user->update([
@@ -125,7 +121,7 @@ class LeagueService
                 'loss_credit' => array_key_exists('loss_credit', $data) ? $data['loss_credit'] : $league->loss_credit,
             ]);
 
-            $league->load(['owners.user', 'subscription']);
+            $league->load(['owners.user', 'leagueSubscription.currentPlan']);
 
             return new LeagueResource($league);
         });
@@ -150,26 +146,5 @@ class LeagueService
         $league = League::withTrashed()->findOrFail($data['id']);
 
         $league->forceDelete();
-    }
-
-    public function renewSubscription(array $data): LeagueResource
-    {
-        return DB::transaction(function () use ($data): LeagueResource {
-            $league = League::findOrFail($data['id']);
-
-            $league->update([
-                'subscription_id' => $data['subscription_id'] ?? $league->subscription_id,
-                'subscription_start' => now(),
-                'subscription_end' => $this->calculateSubscriptionEnd($data['subscription_duration']),
-                'deactivated_at' => null,
-            ]);
-
-            return new LeagueResource($league);
-        });
-    }
-
-    private function calculateSubscriptionEnd(?int $months): ?Carbon
-    {
-        return $months ? now()->addMonths($months) : null;
     }
 }

@@ -10,6 +10,7 @@
         "dedoc/scramble": "^0.13.31",
         "laravel/framework": "^13.8",
         "laravel/tinker": "^3.0",
+        "mercadopago/dx-php": "^3.14",
         "spatie/laravel-permission": "^8.0",
         "tymon/jwt-auth": "^2.3"
     },

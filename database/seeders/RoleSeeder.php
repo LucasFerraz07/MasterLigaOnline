@@ -16,11 +16,10 @@ class RoleSeeder extends Seeder
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions = [
-            // Assinaturas
-            'subscription.view',
-            'subscription.create',
-            'subscription.update',
-            'subscription.delete',
+            // Planos
+            'plan.view',
+            'plan.create',
+            'plan.update',
             // Clubes
             'club.view',
             'club.create',

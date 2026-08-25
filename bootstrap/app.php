@@ -1,20 +1,20 @@
 <?php
 
+use App\Builder\ReturnApi;
 use App\Http\Middleware\EnsureLeagueSubscriptionActive;
 use App\Http\Middleware\JwtMiddleware;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Spatie\Permission\Middleware\PermissionMiddleware;
-use Spatie\Permission\Middleware\RoleMiddleware;
-use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
-use App\Builder\ReturnApi;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Exceptions\UnauthorizedException;
+use Spatie\Permission\Middleware\PermissionMiddleware;
+use Spatie\Permission\Middleware\RoleMiddleware;
+use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -30,15 +30,15 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'auth.api'            => JwtMiddleware::class,
-            'permission'          => PermissionMiddleware::class,
-            'role'                => RoleMiddleware::class,
-            'role_or_permission'  => RoleOrPermissionMiddleware::class,
-            'league.active'       => EnsureLeagueSubscriptionActive::class,
+            'auth.api' => JwtMiddleware::class,
+            'permission' => PermissionMiddleware::class,
+            'role' => RoleMiddleware::class,
+            'role_or_permission' => RoleOrPermissionMiddleware::class,
+            'league.active' => EnsureLeagueSubscriptionActive::class,
         ]);
     })
     ->withSchedule(function (Schedule $schedule): void {
-        $schedule->command('subscriptions:expire')->daily();
+        $schedule->command('subscriptions:sync')->hourly();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
@@ -53,7 +53,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*')) {
-                return ReturnApi::error('Rota não encontrada.', $e->getMessage(), 404);
+                return ReturnApi::error('Rota ou recurso não encontrado.', null, 404);
             }
         });
 

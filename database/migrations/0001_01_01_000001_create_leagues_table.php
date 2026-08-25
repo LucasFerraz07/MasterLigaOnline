@@ -16,9 +16,6 @@ return new class extends Migration
             $table->unsignedTinyInteger('black_limit')->nullable();
             $table->unsignedTinyInteger('mulct_contract_limit')->default(2);
             $table->unsignedTinyInteger('player_limit')->nullable();
-            $table->foreignUuid('subscription_id')->constrained('subscriptions');
-            $table->date('subscription_start');
-            $table->date('subscription_end');
             $table->timestamp('deactivated_at')->nullable();
             $table->softDeletes();
             $table->timestamps();

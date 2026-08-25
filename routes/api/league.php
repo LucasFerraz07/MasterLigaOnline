@@ -1,16 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\League\League;
+use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth.api', 'permission:league.view')->group(function () {
     Route::get('/', [League::class, 'index']);
     Route::get('/{id}', [League::class, 'show']);
-});
-
-Route::middleware('auth.api', 'permission:league.create')->group(function () {
-    Route::post('/', [League::class, 'store']);
-    Route::put('/renew-subscription/{id}', [League::class, 'renew']);
 });
 
 Route::middleware('auth.api', 'permission:league.update')->group(function () {

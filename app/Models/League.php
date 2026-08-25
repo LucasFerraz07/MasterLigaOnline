@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\LeagueSubscriptionStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -26,9 +26,6 @@ class League extends Model
         'win_credit',
         'draw_credit',
         'loss_credit',
-        'subscription_id',
-        'subscription_start',
-        'subscription_end',
         'deactivated_at',
     ];
 
@@ -39,8 +36,6 @@ class League extends Model
     protected function casts(): array
     {
         return [
-            'subscription_start' => 'date',
-            'subscription_end' => 'date',
             'deactivated_at' => 'datetime',
             'silver_limit' => 'integer',
             'golden_limit' => 'integer',
@@ -57,12 +52,13 @@ class League extends Model
     {
         return $this->deleted_at === null
             && $this->deactivated_at === null
-            && $this->subscription_end->isFuture();
+            && $this->leagueSubscription?->status === LeagueSubscriptionStatus::ACTIVE
+            && $this->leagueSubscription->access_expires_at->isFuture();
     }
 
-    public function subscription(): BelongsTo
+    public function leagueSubscription(): HasOne
     {
-        return $this->belongsTo(Subscription::class);
+        return $this->hasOne(LeagueSubscription::class);
     }
 
     public function owners(): HasOne
@@ -73,11 +69,6 @@ class League extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
-    }
-
-    public function subscriptionPeriods(): HasMany
-    {
-        return $this->hasMany(SubscriptionPeriod::class);
     }
 
     public function categoryPrices(): HasMany

@@ -3,7 +3,7 @@
 namespace App\Http\Resources\League;
 
 use App\Http\Resources\Owner\OwnerResource;
-use App\Http\Resources\Subscription\SubscriptionResource;
+use App\Http\Resources\PlanResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -27,12 +27,14 @@ class LeagueResource extends JsonResource
             'win_credit' => (string) $this->win_credit,
             'draw_credit' => (string) $this->draw_credit,
             'loss_credit' => (string) $this->loss_credit,
-            'subscription_id' => $this->subscription_id,
-            'subscription_start' => (string) $this->subscription_start,
-            'subscription_end' => (string) $this->subscription_end,
             'is_active' => (bool) $this->is_active,
             'owner' => OwnerResource::make($this->whenLoaded('owners')),
-            'subscription' => SubscriptionResource::make($this->whenLoaded('subscription')),
+            'subscription' => $this->whenLoaded('leagueSubscription', fn () => [
+                'id' => $this->leagueSubscription->id,
+                'status' => $this->leagueSubscription->status->value,
+                'access_expires_at' => $this->leagueSubscription->access_expires_at->toISOString(),
+                'plan' => PlanResource::make($this->leagueSubscription->currentPlan),
+            ]),
             'created_at' => (string) $this->created_at,
             'updated_at' => (string) $this->updated_at,
         ];

@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             DefaultAdminSeeder::class,
             TransactionTypeSeeder::class,
+            PlanSeeder::class,
         ]);
     }
 }

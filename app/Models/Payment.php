@@ -6,60 +6,26 @@ use App\Enums\PaymentStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
-/**
- * @mixin IdeHelperPayment
- */
 class Payment extends Model
 {
     use HasUuids;
 
-    protected $fillable = [
-        'user_id',
-        'subscription_id',
-        'league_id',
-        'months',
-        'league_name',
-        'owner_full_name',
-        'amount',
-        'status',
-        'gateway',
-        'external_id',
-        'pix_qr_code',
-        'pix_br_code',
-        'expires_at',
-        'paid_at',
-    ];
+    protected $fillable = ['checkout_id', 'gateway', 'method', 'amount_cents', 'currency', 'status', 'status_detail', 'client_idempotency_key', 'gateway_idempotency_key', 'external_id', 'pix_qr_code_base64', 'pix_copy_paste_code', 'pix_ticket_url', 'expires_at', 'approved_at', 'refunded_at'];
 
     protected function casts(): array
     {
-        return [
-            'months' => 'integer',
-            'amount' => 'decimal:2',
-            'status' => PaymentStatus::class,
-            'expires_at' => 'datetime',
-            'paid_at' => 'datetime',
-        ];
+        return ['amount_cents' => 'integer', 'status' => PaymentStatus::class, 'expires_at' => 'datetime', 'approved_at' => 'datetime', 'refunded_at' => 'datetime'];
     }
 
-    public function user(): BelongsTo
+    public function checkout(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Checkout::class);
     }
 
-    public function subscription(): BelongsTo
+    public function subscriptionPeriod(): HasOne
     {
-        return $this->belongsTo(Subscription::class);
-    }
-
-    public function league(): BelongsTo
-    {
-        return $this->belongsTo(League::class);
-    }
-
-    public function subscriptionPeriods(): HasMany
-    {
-        return $this->hasMany(SubscriptionPeriod::class);
+        return $this->hasOne(SubscriptionPeriod::class);
     }
 }

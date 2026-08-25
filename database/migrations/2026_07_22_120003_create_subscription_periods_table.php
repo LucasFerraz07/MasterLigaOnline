@@ -10,12 +10,14 @@ return new class extends Migration
     {
         Schema::create('subscription_periods', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('league_id')->constrained('leagues')->cascadeOnDelete();
-            $table->foreignUuid('payment_id')->constrained('payments')->cascadeOnDelete();
-            $table->foreignUuid('subscription_id')->constrained('subscriptions');
-            $table->unsignedTinyInteger('months');
-            $table->date('starts_at');
-            $table->date('ends_at');
+            $table->foreignUuid('league_subscription_id')->constrained('league_subscriptions')->restrictOnDelete();
+            $table->foreignUuid('plan_id')->constrained('plans')->restrictOnDelete();
+            $table->foreignUuid('plan_price_id')->constrained('plan_prices')->restrictOnDelete();
+            $table->foreignUuid('payment_id')->unique()->constrained('payments')->restrictOnDelete();
+            $table->unsignedBigInteger('amount_cents');
+            $table->char('currency', 3)->default('BRL');
+            $table->timestamp('starts_at');
+            $table->timestamp('ends_at');
             $table->string('status')->default('active');
             $table->timestamps();
         });

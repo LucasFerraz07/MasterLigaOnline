@@ -10,21 +10,24 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignUuid('subscription_id')->constrained('subscriptions');
-            $table->foreignUuid('league_id')->nullable()->constrained('leagues')->cascadeOnDelete();
-            $table->unsignedTinyInteger('months');
-            $table->string('league_name');
-            $table->string('owner_full_name', 150);
-            $table->decimal('amount', 10, 2);
-            $table->string('status')->default('pending');
-            $table->string('gateway')->default('abacate_pay');
+            $table->foreignUuid('checkout_id')->constrained('checkouts')->restrictOnDelete();
+            $table->string('gateway')->default('mercado_pago');
+            $table->string('method')->default('pix');
+            $table->unsignedBigInteger('amount_cents');
+            $table->char('currency', 3)->default('BRL');
+            $table->string('status')->default('creating');
+            $table->string('status_detail')->nullable();
+            $table->uuid('client_idempotency_key');
+            $table->uuid('gateway_idempotency_key')->unique();
             $table->string('external_id')->nullable()->unique();
-            $table->text('pix_qr_code')->nullable();
-            $table->text('pix_br_code')->nullable();
+            $table->longText('pix_qr_code_base64')->nullable();
+            $table->text('pix_copy_paste_code')->nullable();
+            $table->text('pix_ticket_url')->nullable();
             $table->timestamp('expires_at')->nullable();
-            $table->timestamp('paid_at')->nullable();
+            $table->timestamp('approved_at')->nullable();
+            $table->timestamp('refunded_at')->nullable();
             $table->timestamps();
+            $table->unique(['checkout_id', 'client_idempotency_key']);
         });
     }
 

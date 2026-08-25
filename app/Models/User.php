@@ -72,6 +72,16 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(Owner::class);
     }
 
+    public function checkouts(): HasMany
+    {
+        return $this->hasMany(Checkout::class);
+    }
+
+    public function leagueSubscription(): HasOne
+    {
+        return $this->hasOne(LeagueSubscription::class);
+    }
+
     public function clubIdentity(): HasOne
     {
         return $this->hasOne(ClubIdentity::class);
