@@ -1,10 +1,13 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Plan;
 
 use App\Exceptions\ApiException;
+use App\Models\Checkout;
+use App\Models\LeagueSubscription;
 use App\Models\Plan;
 use App\Models\PlanPrice;
+use App\Models\SubscriptionPeriod;
 use Illuminate\Support\Facades\DB;
 
 class PlanService
@@ -50,5 +53,30 @@ class PlanService
         $price->update(['active' => false]);
 
         return $price->refresh();
+    }
+
+    public function destroy(Plan $plan): void
+    {
+        DB::transaction(function () use ($plan): void {
+            $plan = Plan::query()->lockForUpdate()->findOrFail($plan->id);
+            $priceIds = $plan->prices()->lockForUpdate()->pluck('id');
+
+            $hasLinkedRecords = Checkout::query()->whereIn('plan_price_id', $priceIds)->exists()
+                || LeagueSubscription::query()
+                    ->where('current_plan_id', $plan->id)
+                    ->orWhereIn('current_plan_price_id', $priceIds)
+                    ->exists()
+                || SubscriptionPeriod::query()
+                    ->where('plan_id', $plan->id)
+                    ->orWhereIn('plan_price_id', $priceIds)
+                    ->exists();
+
+            if ($hasLinkedRecords) {
+                throw new ApiException('Não é possível excluir um plano que possui checkouts, assinaturas ou períodos de assinatura vinculados.', 409);
+            }
+
+            $plan->prices()->delete();
+            $plan->delete();
+        });
     }
 }

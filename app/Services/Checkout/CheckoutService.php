@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Checkout;
 
 use App\Contracts\PaymentGateway;
 use App\Enums\CheckoutStatus;
@@ -11,6 +11,7 @@ use App\Models\Checkout;
 use App\Models\Payment;
 use App\Models\PlanPrice;
 use App\Models\User;
+use App\Services\Payment\PaymentReconciliationService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;

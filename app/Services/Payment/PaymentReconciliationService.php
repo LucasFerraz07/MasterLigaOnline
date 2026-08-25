@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Payment;
 
 use App\Data\GatewayPayment;
 use App\Enums\CheckoutStatus;

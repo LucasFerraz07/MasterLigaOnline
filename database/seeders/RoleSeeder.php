@@ -20,6 +20,7 @@ class RoleSeeder extends Seeder
             'plan.view',
             'plan.create',
             'plan.update',
+            'plan.delete',
             // Clubes
             'club.view',
             'club.create',

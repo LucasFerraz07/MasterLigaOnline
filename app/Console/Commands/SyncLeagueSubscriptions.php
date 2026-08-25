@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\LeagueSubscription;
-use App\Services\SubscriptionLifecycleService;
+use App\Services\Subscription\SubscriptionLifecycleService;
 use Illuminate\Console\Command;
 
 class SyncLeagueSubscriptions extends Command

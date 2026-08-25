@@ -6,7 +6,7 @@ use App\Contracts\PaymentGateway;
 use App\Enums\WebhookEventStatus;
 use App\Models\Payment;
 use App\Models\PaymentWebhookEvent;
-use App\Services\PaymentReconciliationService;
+use App\Services\Payment\PaymentReconciliationService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;

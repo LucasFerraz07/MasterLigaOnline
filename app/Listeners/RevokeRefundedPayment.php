@@ -3,7 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\PaymentRefunded;
-use App\Services\SubscriptionLifecycleService;
+use App\Services\Subscription\SubscriptionLifecycleService;
 
 class RevokeRefundedPayment
 {
