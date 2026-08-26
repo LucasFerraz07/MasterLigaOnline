@@ -45,12 +45,9 @@ class PlanService
         });
     }
 
-    public function deactivatePrice(PlanPrice $price): PlanPrice
+    public function changePriceStatus(PlanPrice $price): PlanPrice
     {
-        if (! $price->active) {
-            throw new ApiException('Este preço já está inativo.', 409);
-        }
-        $price->update(['active' => false]);
+        $price->update(['active' => ! $price->active]);
 
         return $price->refresh();
     }

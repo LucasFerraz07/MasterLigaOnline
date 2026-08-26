@@ -50,10 +50,12 @@ class PlanController extends Controller
         return ReturnApi::success(new PlanPriceResource($this->service->addPrice($plan, $request->validated())), 'Preço criado.');
     }
 
-    #[Endpoint(operationId: 'deactivatePlanPrice', title: 'Deactivate Plan Price', description: '**operationId:** `deactivatePlanPrice` — Desativa um preço de plano ativo. Em **200**, `data` segue o schema **PlanPriceResource**. Requer permissão: plan.update')]
-    public function deactivatePrice(PlanPrice $price): JsonResponse
+    #[Endpoint(operationId: 'changePlanPriceStatus', title: 'Change Plan Price Status', description: '**operationId:** `changePlanPriceStatus` — Alterna o status de um preço de plano entre ativo e inativo. Em **200**, `data` segue o schema **PlanPriceResource** com o status atualizado. Requer permissão: plan.update')]
+    public function changePriceStatus(PlanPrice $price): JsonResponse
     {
-        return ReturnApi::success(new PlanPriceResource($this->service->deactivatePrice($price)), 'Preço desativado.');
+        $price = $this->service->changePriceStatus($price);
+
+        return ReturnApi::success(new PlanPriceResource($price), $price->active ? 'Preço ativado.' : 'Preço desativado.');
     }
 
     #[Endpoint(operationId: 'destroyPlan', title: 'Destroy Plan', description: '**operationId:** `destroyPlan` — Remove definitivamente um plano e todos os seus preços. A exclusão é recusada caso existam checkouts, assinaturas ou períodos de assinatura vinculados. Em **200**, `data` é `null`. Requer permissão: plan.delete')]

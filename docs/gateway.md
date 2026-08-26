@@ -74,7 +74,7 @@ Rotas administrativas, protegidas por JWT e permissões:
 - `POST /api/plans`
 - `PUT /api/plans/{plan}`
 - `POST /api/plans/{plan}/prices`
-- `PATCH /api/plans/prices/{price}/deactivate` (desativa; não apaga)
+- `PATCH /api/plans/prices/{price}/deactivate` (alterna entre ativo e inativo; não apaga)
 
 Um preço não possui endpoint de edição. O reajuste cria uma nova versão e desativa a versão anterior. O código do plano também é imutável após a criação.
 

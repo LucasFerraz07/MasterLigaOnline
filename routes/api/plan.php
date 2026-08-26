@@ -9,5 +9,5 @@ Route::middleware('auth.api', 'permission:plan.delete')->delete('/{plan}', [Plan
 Route::middleware('auth.api', 'permission:plan.update')->group(function () {
     Route::put('/{plan}', [PlanController::class, 'update']);
     Route::post('/{plan}/prices', [PlanController::class, 'storePrice']);
-    Route::patch('/prices/{price}/deactivate', [PlanController::class, 'deactivatePrice']);
+    Route::patch('/prices/{price}/deactivate', [PlanController::class, 'changePriceStatus']);
 });

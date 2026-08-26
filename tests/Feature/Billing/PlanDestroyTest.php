@@ -14,6 +14,25 @@ class PlanDestroyTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_it_toggles_a_plan_price_status(): void
+    {
+        $price = Plan::create(['code' => 'basic', 'name' => 'Básico', 'active' => true])
+            ->prices()
+            ->create([
+                'code' => 'basic-1m-v1',
+                'version' => 1,
+                'interval_months' => 1,
+                'amount_cents' => 2990,
+                'currency' => 'BRL',
+                'active' => true,
+            ]);
+
+        $service = app(PlanService::class);
+
+        $this->assertFalse($service->changePriceStatus($price)->active);
+        $this->assertTrue($service->changePriceStatus($price)->active);
+    }
+
     public function test_it_permanently_removes_a_plan_and_its_prices(): void
     {
         $plan = Plan::create(['code' => 'basic', 'name' => 'Básico', 'active' => true]);
