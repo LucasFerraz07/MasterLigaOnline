@@ -37,7 +37,7 @@ class PlanService
     public function addPrice(Plan $plan, array $data): PlanPrice
     {
         return DB::transaction(function () use ($plan, $data) {
-            $existing = $plan->prices()->where('interval_months', $data['interval_months'])->lockForUpdate();
+            $existing = $plan->prices()->where('interval_months', $data['interval_months']);
             $version = ((int) $existing->max('version')) + 1;
             $existing->where('active', true)->update(['active' => false]);
 
