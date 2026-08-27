@@ -22,7 +22,7 @@ RUN composer dump-autoload --optimize --classmap-authoritative --no-dev
 FROM dunglas/frankenphp:php8.4
 
 # A aplicação usa PostgreSQL e recursos de internacionalização do PHP.
-RUN install-php-extensions opcache pdo_pgsql intl
+RUN install-php-extensions opcache pdo_pgsql intl bcmath
 
 ENV SERVER_NAME=:80
 
